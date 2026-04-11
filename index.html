@@ -3,243 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SPOT SCANNER</title>
+    <title>RZKY SPOT | V33 BOTTOM HUNTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; background-color: #050608; color: #cbd5e1; -webkit-tap-highlight-color: transparent; }
-        .neon-green { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.4); }
-        .card-quant { background: #11141b; border: 1px solid #1e293b; border-radius: 18px; }
-        .active-tab { background: #00ff88 !important; color: #000 !important; border-color: #00ff88 !important; }
-        .custom-scroll::-webkit-scrollbar { display: none; }
+        body { font-family: 'JetBrains Mono', monospace; background-color: #040508; color: #cbd5e1; }
+        .card-pro { background: #0f121a; border: 1px solid #1e293b; border-radius: 12px; }
+        .btn-f { background: #1e293b; color: #94a3b8; padding: 8px 16px; border-radius: 8px; font-size: 10px; font-weight: 800; border: 1px solid transparent; }
+        .btn-f.active { background: #ffffff; color: #000; border-color: #fff; }
+        .buy-badge { background: #00ff88; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .pot-badge { background: #0ea5e9; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .warn-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-10">
 
-    <header class="sticky top-0 z-50 bg-[#050608]/90 backdrop-blur-md border-b border-slate-800 p-4">
-        <div class="max-w-xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-black italic neon-green tracking-tighter uppercase">RZKY<span class="text-white">SPOT</span></h1>
-                <p id="kurs-text" class="text-[9px] text-yellow-500 font-bold uppercase mt-1 tracking-widest italic">Memuat Kurs...</p>
-            </div>
-            <button onclick="runQuantScan()" id="btn-scan" class="bg-white text-black font-black px-5 py-2.5 rounded-xl text-[10px] uppercase active:scale-90 transition-all">
-                SCAN MARKET
-            </button>
+    <header class="sticky top-0 z-50 bg-[#040508]/95 border-b border-slate-800 p-5">
+        <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
+            <h1 class="text-xl font-black italic text-white uppercase tracking-tighter">RZKY <span class="text-cyan-400">SPOT</span></h1>
+            <button onclick="tarikData()" id="btn" class="bg-cyan-500 text-black font-black px-5 py-2 rounded-lg text-[10px] uppercase">SCAN MARKET</button>
+        </div>
+        
+        <div class="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="setFil('ALL', this)" class="btn-f active">SEMUA</button>
+            <button onclick="setFil('BUY', this)" class="btn-f text-green-400">BUY (BOTTOM)</button>
+            <button onclick="setFil('POTENSIAL BREAKOUT', this)" class="btn-f text-cyan-400">BREAKOUT</button>
+            <button onclick="setFil('WARNING', this)" class="btn-f text-red-400">WARNING</button>
         </div>
     </header>
 
-    <div class="p-4 max-w-xl mx-auto space-y-4">
-        <div class="flex gap-2 overflow-x-auto custom-scroll">
-            <button id="f-all" onclick="setFilter('ALL')" class="active-tab flex-none px-5 py-2 rounded-full border border-slate-800 bg-[#11141b] text-[10px] font-bold uppercase">ALL</button>
-            <button id="f-high" onclick="setFilter('HIGH')" class="flex-none px-5 py-2 rounded-full border border-slate-800 bg-[#11141b] text-[10px] font-bold uppercase text-[#00ff88]">🔥 High Score</button>
-            <button id="f-sqz" onclick="setFilter('SQUEEZE')" class="flex-none px-5 py-2 rounded-full border border-slate-800 bg-[#11141b] text-[10px] font-bold uppercase text-blue-400">💎 Squeeze</button>
-        </div>
-        <input type="text" id="search" placeholder="Cari Pair (Contoh: BTC, DOGE...)" oninput="renderDisplay()" class="w-full bg-[#11141b] border border-slate-800 rounded-2xl px-5 py-4 text-xs outline-none focus:border-[#00ff88]">
-    </div>
-
-    <main id="main-list" class="px-4 max-w-xl mx-auto space-y-3">
-        <div class="py-20 text-center text-slate-600 italic text-xs">Tekan SCAN untuk memulai analisis 9 Indikator.</div>
+    <main id="konten" class="px-4 py-6 max-w-xl mx-auto space-y-3">
+        <div class="text-center py-20 text-slate-600 text-[10px] uppercase tracking-widest italic">Target: Beli Murah, Jual Mahal. Klik Scan.</div>
     </main>
 
     <div id="modal" class="fixed inset-0 z-[60] hidden bg-black flex flex-col">
-        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
-            <h2 id="m-symbol" class="text-2xl font-black text-white italic tracking-tighter">---</h2>
-            <button onclick="closeModal()" class="w-12 h-12 rounded-full bg-slate-900 text-white text-3xl">&times;</button>
+        <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-[#040508]">
+            <h2 id="m-sym" class="font-black text-white uppercase tracking-tighter">---</h2>
+            <button onclick="closeModal()" class="text-white text-3xl font-light p-2">&times;</button>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 space-y-6">
-            <div id="tv-box" class="w-full h-[320px] rounded-2xl border border-slate-800 overflow-hidden"></div>
-            <div class="card-quant p-6 space-y-6">
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-                        <p class="text-[9px] text-slate-500 uppercase font-bold mb-1 italic">Buy Zone</p>
-                        <p id="m-entry" class="text-lg font-black text-white"></p>
-                    </div>
-                    <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-                        <p class="text-[9px] text-[#00ff88] uppercase font-bold mb-1 italic">Target TP</p>
-                        <p id="m-tp" class="text-lg font-black text-[#00ff88]"></p>
-                    </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div id="tv-box" class="w-full h-[350px] rounded-2xl border border-slate-800 bg-black"></div>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">ENTRY (MURAH)</p>
+                    <p id="m-entry" class="text-[10px] font-black text-white"></p>
                 </div>
-                <div class="p-4 bg-red-500/5 rounded-xl border border-red-500/20 text-center">
-                    <p class="text-[9px] text-red-500 uppercase font-bold mb-1 italic">Stop Loss</p>
-                    <p id="m-sl" class="text-md font-black text-red-500"></p>
+                <div class="p-3 bg-slate-900 rounded-xl border border-green-900/50 text-center">
+                    <p class="text-[8px] text-green-500 font-bold uppercase mb-1">TP TARGET</p>
+                    <p id="m-tp" class="text-[10px] font-black text-green-400"></p>
                 </div>
-                <div class="space-y-3">
-                    <h3 class="text-[10px] text-slate-500 uppercase font-black italic tracking-widest">Logic Confirmation:</h3>
-                    <div id="m-reasons" class="space-y-2 text-[11px] font-bold text-slate-300"></div>
+                <div class="p-3 bg-slate-900 rounded-xl border border-red-900/50 text-center">
+                    <p class="text-[8px] text-red-500 font-bold uppercase mb-1">STOP LOSS</p>
+                    <p id="m-sl" class="text-[10px] font-black text-red-400"></p>
                 </div>
             </div>
+            <div id="m-audit" class="p-3 bg-slate-900/50 border border-slate-800 rounded-xl text-[9px] text-slate-400 font-bold uppercase space-y-1"></div>
         </div>
     </div>
 
     <script>
-        let kurs = 16250;
-        let marketData = [];
-        let currentFilter = 'ALL';
+        const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
+        let db = [], currentFil = 'ALL';
 
-        async function fetchKurs() {
+        async function tarikData() {
+            const btn = document.getElementById('btn');
+            btn.innerText = "HUNTING BOTTOM...";
             try {
-                const r = await fetch('https://api.exchangerate-api.com/v4/latest/USDT');
-                const d = await r.json();
-                kurs = d.rates.IDR;
-                document.getElementById('kurs-text').innerText = `1 USDT = Rp ${kurs.toLocaleString('id-ID')}`;
-            } catch(e) {}
-        }
-
-        async function runQuantScan() {
-            const btn = document.getElementById('btn-scan');
-            btn.disabled = true; btn.innerText = "...";
-            try {
-                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr');
-                const tickers = await res.json();
-                const pairs = tickers.filter(t => t.symbol.endsWith('USDT') && parseFloat(t.quoteVolume) > 1000000);
-                marketData = [];
-
-                for (let i = 0; i < pairs.length; i += 30) {
-                    const chunk = pairs.slice(i, i + 30);
-                    const results = await Promise.all(chunk.map(async (coin) => {
-                        try {
-                            const kr = await fetch(`https://api.binance.com/api/v3/klines?symbol=${coin.symbol}&interval=1h&limit=100`);
-                            const kl = await kr.json();
-                            return calculateFullQuant(coin, kl);
-                        } catch(e) { return null; }
-                    }));
-                    marketData.push(...results.filter(r => r !== null));
-                    renderDisplay();
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const tickers = data.tickers;
+                db = [];
+                for (let key in tickers) {
+                    if (key.endsWith('_idr')) db.push(analyzeBottom(key, tickers[key]));
                 }
+                render();
+            } catch (err) {
+                alert("API Limit!");
             } finally {
-                btn.disabled = false; btn.innerText = "SCAN MARKET";
+                btn.innerText = "SCAN MARKET";
             }
         }
 
-        function calculateFullQuant(ticker, klines) {
-            const close = klines.map(k => parseFloat(k[4]));
-            const vol = klines.map(k => parseFloat(k[5]));
-            const high = klines.map(k => parseFloat(k[2]));
-            const low = klines.map(k => parseFloat(k[3]));
-            const now = close[close.length-1];
+        function analyzeBottom(pair, ticker) {
+            const last = parseFloat(ticker.last), hi = parseFloat(ticker.high), lo = parseFloat(ticker.low), vol = parseFloat(ticker.vol_idr);
+            const sym = pair.split('_')[0].toUpperCase();
+            const rsi = Math.round(((last - lo) / (hi - lo)) * 100);
+            const gainFromLow = ((last - lo) / lo) * 100;
+            const range = (hi - lo) / lo;
             
-            // --- 9 INDICATOR LOGIC ---
-            let score = 0;
-            let reasons = [];
-            let label = "NEUTRAL";
+            let lb = "NORMAL", bd = "", sc = 50, audit = [];
 
-            // 1. MA/EMA (Trend)
-            const ma20 = close.slice(-20).reduce((a,b)=>a+b)/20;
-            const ema50 = calculateEMA(close, 50);
-            if (now > ma20 && ma20 > ema50) { score += 15; reasons.push("MA/EMA: Golden Trend (Bullish)."); }
-
-            // 2. RSI (Momentum)
-            const rsi = calculateRSI(close, 14);
-            if (rsi > 45 && rsi < 65) { score += 15; reasons.push("RSI: Momentum Sehat."); }
-
-            // 3. Bollinger Bands (Volatility)
-            const { upper, lower } = calculateBoll(close, 20, 2);
-            const bandwidth = (upper - lower) / lower;
-            if (bandwidth < 0.04) { score += 20; label = "SQUEEZE"; reasons.push("BOLL: Squeeze terdeteksi (Siap Breakout)."); }
-
-            // 4. OBV & Volume (Money Inflow)
-            const volAvg = vol.slice(-24).reduce((a,b)=>a+b)/24;
-            if (vol[vol.length-1] > volAvg * 1.5) { score += 15; reasons.push("VOL: Spike Volume terdeteksi."); }
-            
-            // 5. MFI / CMF Proxy (Flow)
-            if (now > close[close.length-2] && vol[vol.length-1] > volAvg) { score += 15; reasons.push("MFI/CMF: Uang masuk (Accumulation)."); }
-
-            // 6. MACD Proxy
-            const macdFast = calculateEMA(close, 12);
-            const macdSlow = calculateEMA(close, 26);
-            if (macdFast > macdSlow) { score += 20; reasons.push("MACD: Bullish Crossover."); }
-
-            // --- PROTEKSI ---
-            const change = parseFloat(ticker.priceChangePercent);
-            if (change > 10 || rsi > 70) { score -= 60; reasons.push("RISK: Sudah Jenuh Beli (Overbought)."); }
-
-            return {
-                symbol: ticker.symbol, price: now, priceIDR: now * kurs,
-                change, score, label,
-                reasons, sl: now * 0.96, tp: now * 1.12
-            };
-        }
-
-        // --- MATH HELPERS ---
-        function calculateEMA(data, p) {
-            const k = 2 / (p + 1);
-            let ema = data[0];
-            for (let i = 1; i < data.length; i++) ema = data[i] * k + ema * (1 - k);
-            return ema;
-        }
-
-        function calculateRSI(close, p) {
-            let g = 0, l = 0;
-            for (let i = close.length - p; i < close.length; i++) {
-                let d = close[i] - close[i-1];
-                if (d >= 0) g += d; else l -= d;
+            if (gainFromLow > 7 || rsi > 60) {
+                if (last >= hi * 0.98) { lb = "POTENSIAL BREAKOUT"; bd = "pot-badge"; sc = 70; audit.push("UJI RESISTANCE (HATI-HATI)"); }
+                else { lb = "WARNING"; bd = "warn-badge"; sc = 20; audit.push("HARGA SUDAH TERLALU TINGGI"); }
+            } 
+            else if (gainFromLow <= 5 && rsi < 55 && vol > 800000000) {
+                lb = "BUY"; bd = "buy-badge"; sc = 95;
+                audit.push("AREA AKUMULASI BAWAH (MURAH)");
+                audit.push("VOLUME WHALE TERDETEKSI");
             }
-            return 100 - (100 / (1 + (g / l)));
+
+            if (range < 0.03) audit.push("SEDANG SIDEWAYS (SQUEEZE)");
+
+            return { s: sym, p: last, lb, bd, sc, rsi, entry: last, tp: last * 1.07, sl: last * 0.965, audit };
         }
 
-        function calculateBoll(data, p, std) {
-            const slice = data.slice(-p);
-            const avg = slice.reduce((a,b)=>a+b)/p;
-            const sd = Math.sqrt(slice.map(x => Math.pow(x - avg, 2)).reduce((a,b)=>a+b)/p);
-            return { upper: avg + (std * sd), lower: avg - (std * sd) };
+        function setFil(f, btn) {
+            currentFil = f;
+            document.querySelectorAll('.btn-f').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
         }
 
-        function renderDisplay() {
-            const list = document.getElementById('main-list');
-            const search = document.getElementById('search').value.toUpperCase();
-            let data = [...marketData].sort((a,b) => b.score - a.score);
+        function render() {
+            const container = document.getElementById('konten');
+            let filtered = (currentFil === 'ALL') ? db : db.filter(x => x.lb === currentFil);
+            let sorted = filtered.sort((a,b) => b.sc - a.sc);
+            
+            if (sorted.length === 0) {
+                container.innerHTML = `<div class='text-center py-10 text-slate-600 uppercase text-[10px]'>Kosong di kategori ${currentFil}</div>`;
+                return;
+            }
 
-            if (currentFilter === 'HIGH') data = data.filter(d => d.score >= 60);
-            if (currentFilter === 'SQUEEZE') data = data.filter(d => d.label === 'SQUEEZE');
-            if (search) data = data.filter(d => d.symbol.includes(search));
-
-            list.innerHTML = data.map(c => `
-                <div class="card-quant p-5 active:scale-95 transition-all" onclick="openDetail('${c.symbol}')">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-black text-white italic tracking-tighter">${c.symbol.replace('USDT','')}</h3>
-                            <p class="text-[9px] font-bold uppercase mt-1 ${c.score > 50 ? 'text-[#00ff88]' : 'text-slate-500'}">${c.label === 'SQUEEZE' ? 'POTENSIAL BREAKOUT📈🚀' : 'EARLY MOVE📈'}</p>
+            container.innerHTML = sorted.map(x => `
+                <div class="card-pro p-4 flex justify-between items-center border-l-4 ${getClr(x.lb)}" onclick="openModal('${x.s}')">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-md font-black text-white">${x.s}</span>
+                            ${x.bd ? `<span class="${x.bd}">${x.lb}</span>` : ''}
                         </div>
-                        <div class="text-right">
-                            <p class="text-md font-black text-white">$${c.price.toLocaleString()}</p>
-                            <p class="text-[9px] text-slate-500 font-bold">Rp ${c.priceIDR.toLocaleString('id-ID')}</p>
-                        </div>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">RSI: ${x.rsi}% | VOL: IDR ${(x.sc > 50 ? 'Gede' : 'Kecil')}</p>
                     </div>
-                    <div class="flex justify-between items-end mt-4 pt-3 border-t border-slate-800/50">
-                        <div class="flex gap-4 text-[10px] font-black">
-                            <div><p class="text-[8px] text-slate-500 uppercase">24h</p><p class="${c.change > 0 ? 'text-green-500' : 'text-red-500'}">${c.change}%</p></div>
-                            <div><p class="text-[8px] text-slate-500 uppercase">Score</p><p class="${c.score > 50 ? 'text-[#00ff88]' : 'text-slate-400'}">${c.score}</p></div>
-                        </div>
-                        <div class="bg-white text-black text-[9px] font-black px-4 py-2 rounded-xl italic uppercase">Detail</div>
+                    <div class="text-right">
+                        <p class="text-[12px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
+                        <p class="text-[8px] text-cyan-400 font-bold tracking-tighter italic">CEK AREA BAWAH</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        function setFilter(f) {
-            currentFilter = f;
-            document.querySelectorAll('button[id^="f-"]').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById('f-' + f.toLowerCase()).classList.add('active-tab');
-            renderDisplay();
+        function getClr(lb) {
+            return lb==='BUY'?'border-green-400':(lb==='POTENSIAL BREAKOUT'?'border-cyan-400':(lb==='WARNING'?'border-red-500':'border-slate-800'));
         }
 
-        function openDetail(sym) {
-            const d = marketData.find(x => x.symbol === sym);
+        function openModal(s) {
+            const x = db.find(i => i.s === s);
             document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('m-symbol').innerText = sym;
-            document.getElementById('m-entry').innerText = `$${d.price.toLocaleString()}`;
-            document.getElementById('m-sl').innerText = `$${d.sl.toFixed(5)}`;
-            document.getElementById('m-tp').innerText = `$${d.tp.toFixed(5)}`;
-            document.getElementById('m-reasons').innerHTML = d.reasons.map(r => `<div>• ${r}</div>`).join('');
+            document.getElementById('m-sym').innerText = s;
+            document.getElementById('m-entry').innerText = "Rp " + x.entry.toLocaleString('id-ID');
+            document.getElementById('m-tp').innerText = "Rp " + Math.round(x.tp).toLocaleString('id-ID');
+            document.getElementById('m-sl').innerText = "Rp " + Math.round(x.sl).toLocaleString('id-ID');
+            document.getElementById('m-audit').innerHTML = x.audit.map(a => `<div>• ${a}</div>`).join('');
+            
+            document.getElementById('tv-box').innerHTML = "";
+            
+            // Perbaikan simbol: Pastikan format BINANCE:SYMBCLUSDT agar chart selalu muncul
+            const cleanSymbol = s.replace(/[^a-zA-Z0-9]/g, "");
+            
             new TradingView.widget({
-                "autosize": true, "symbol": "BINANCE:" + sym, "interval": "60",
-                "theme": "dark", "container_id": "tv-box", "hide_top_toolbar": true, "hide_side_toolbar": true
+                "autosize": true,
+                "symbol": "BINANCE:" + cleanSymbol + "USDT",
+                "interval": "60",
+                "theme": "dark",
+                "container_id": "tv-box",
+                "style": "1",
+                "locale": "id",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "hide_side_toolbar": false
             });
         }
 
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-        fetchKurs();
     </script>
 </body>
 </html>
