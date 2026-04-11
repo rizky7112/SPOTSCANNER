@@ -3,63 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V33 BOTTOM HUNTER</title>
+    <title>RZKY SPOT | V2 BOTTOM HUNTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
         body { font-family: 'JetBrains Mono', monospace; background-color: #040508; color: #cbd5e1; }
         .card-pro { background: #0f121a; border: 1px solid #1e293b; border-radius: 12px; }
-        .btn-f { background: #1e293b; color: #94a3b8; padding: 8px 16px; border-radius: 8px; font-size: 10px; font-weight: 800; border: 1px solid transparent; }
+        .btn-f { background: #1e293b; color: #94a3b8; padding: 8px 16px; border-radius: 8px; font-size: 10px; font-weight: 800; border: 1px solid transparent; white-space: nowrap; }
         .btn-f.active { background: #ffffff; color: #000; border-color: #fff; }
-        .buy-badge { background: #00ff88; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
-        .pot-badge { background: #0ea5e9; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
-        .warn-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+
+        /* Signal badges */
+        .badge-BUY      { background: #00ff88; color: #003322; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .badge-WATCH    { background: #facc15; color: #422006; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .badge-BREAKOUT { background: #38bdf8; color: #0c1a2e; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .badge-WARNING  { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+        .badge-NORMAL   { background: #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; }
+
+        /* PIR bar */
+        .pir-track { background: #1e293b; border-radius: 4px; height: 5px; width: 60px; overflow: hidden; }
+        .pir-fill  { height: 100%; border-radius: 4px; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Confidence ring */
+        .conf-ring { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; border: 2px solid; flex-shrink: 0; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-16">
 
-    <header class="sticky top-0 z-50 bg-[#040508]/95 border-b border-slate-800 p-5">
-        <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
-            <h1 class="text-xl font-black italic text-white uppercase tracking-tighter">RZKY <span class="text-cyan-400">SPOT</span></h1>
-            <button onclick="tarikData()" id="btn" class="bg-cyan-500 text-black font-black px-5 py-2 rounded-lg text-[10px] uppercase">SCAN MARKET</button>
+    <header class="sticky top-0 z-50 bg-[#040508]/95 border-b border-slate-800 p-4">
+        <div class="max-w-xl mx-auto flex justify-between items-center mb-3">
+            <div>
+                <h1 class="text-xl font-black italic text-white uppercase tracking-tighter">RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-600 text-xs font-normal">v2</span></h1>
+                <p id="scan-info" class="text-[9px] text-slate-600 uppercase tracking-widest">Multi-Condition Signal Engine</p>
+            </div>
+            <button onclick="tarikData()" id="btn" class="bg-cyan-500 hover:bg-cyan-400 text-black font-black px-5 py-2 rounded-lg text-[10px] uppercase transition-colors">SCAN</button>
         </div>
-        
         <div class="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            <button onclick="setFil('ALL', this)" class="btn-f active">SEMUA</button>
-            <button onclick="setFil('BUY', this)" class="btn-f text-green-400">BUY (BOTTOM)</button>
-            <button onclick="setFil('POTENSIAL BREAKOUT', this)" class="btn-f text-cyan-400">BREAKOUT</button>
-            <button onclick="setFil('WARNING', this)" class="btn-f text-red-400">WARNING</button>
+            <button onclick="setFil('ALL', this)"       class="btn-f active">SEMUA</button>
+            <button onclick="setFil('BUY', this)"       class="btn-f text-green-400">✔ BUY</button>
+            <button onclick="setFil('WATCH', this)"     class="btn-f text-yellow-400">◉ WATCH</button>
+            <button onclick="setFil('BREAKOUT', this)"  class="btn-f text-cyan-400">↑ BREAKOUT</button>
+            <button onclick="setFil('WARNING', this)"   class="btn-f text-red-400">✕ WARNING</button>
         </div>
     </header>
 
     <main id="konten" class="px-4 py-6 max-w-xl mx-auto space-y-3">
-        <div class="text-center py-20 text-slate-600 text-[10px] uppercase tracking-widest italic">Target: Beli Murah, Jual Mahal. Klik Scan.</div>
+        <div class="text-center py-20 text-slate-600 text-[10px] uppercase tracking-widest italic">Sinyal dikonfirmasi 3+ kondisi sekaligus.<br>Klik Scan untuk mulai.</div>
     </main>
 
+    <!-- Modal Detail -->
     <div id="modal" class="fixed inset-0 z-[60] hidden bg-black flex flex-col">
         <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-[#040508]">
-            <h2 id="m-sym" class="font-black text-white uppercase tracking-tighter">---</h2>
-            <button onclick="closeModal()" class="text-white text-3xl font-light p-2">&times;</button>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h2 id="m-sym" class="font-black text-white uppercase tracking-tighter text-lg">---</h2>
+                    <span id="m-badge"></span>
+                </div>
+                <p id="m-conf-label" class="text-[9px] text-slate-500 uppercase mt-0.5"></p>
+            </div>
+            <button onclick="closeModal()" class="text-white text-3xl font-light p-2 leading-none">&times;</button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
-            <div id="tv-box" class="w-full h-[350px] rounded-2xl border border-slate-800 bg-black"></div>
+
+            <!-- Chart -->
+            <div id="tv-box" class="w-full h-[320px] rounded-2xl border border-slate-800 bg-black"></div>
+
+            <!-- Metrics row -->
             <div class="grid grid-cols-3 gap-2">
                 <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-center">
-                    <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">ENTRY (MURAH)</p>
-                    <p id="m-entry" class="text-[10px] font-black text-white"></p>
+                    <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">ENTRY</p>
+                    <p id="m-entry" class="text-[11px] font-black text-white"></p>
                 </div>
                 <div class="p-3 bg-slate-900 rounded-xl border border-green-900/50 text-center">
-                    <p class="text-[8px] text-green-500 font-bold uppercase mb-1">TP TARGET</p>
-                    <p id="m-tp" class="text-[10px] font-black text-green-400"></p>
+                    <p class="text-[8px] text-green-500 font-bold uppercase mb-1">TARGET TP</p>
+                    <p id="m-tp" class="text-[11px] font-black text-green-400"></p>
                 </div>
                 <div class="p-3 bg-slate-900 rounded-xl border border-red-900/50 text-center">
                     <p class="text-[8px] text-red-500 font-bold uppercase mb-1">STOP LOSS</p>
-                    <p id="m-sl" class="text-[10px] font-black text-red-400"></p>
+                    <p id="m-sl" class="text-[11px] font-black text-red-400"></p>
                 </div>
             </div>
-            <div id="m-audit" class="p-3 bg-slate-900/50 border border-slate-800 rounded-xl text-[9px] text-slate-400 font-bold uppercase space-y-1"></div>
+
+            <!-- Signal indicators -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="p-2 bg-slate-900 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[8px] text-slate-500 mb-1">PIR</p>
+                    <p id="m-pir" class="text-[11px] font-black text-white"></p>
+                    <p class="text-[8px] text-slate-600">posisi range</p>
+                </div>
+                <div class="p-2 bg-slate-900 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[8px] text-slate-500 mb-1">RANGE</p>
+                    <p id="m-range" class="text-[11px] font-black text-white"></p>
+                    <p class="text-[8px] text-slate-600">volatilitas</p>
+                </div>
+                <div class="p-2 bg-slate-900 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[8px] text-slate-500 mb-1">VOL</p>
+                    <p id="m-vol" class="text-[11px] font-black text-white"></p>
+                    <p class="text-[8px] text-slate-600">skor 0–3</p>
+                </div>
+                <div class="p-2 bg-slate-900 rounded-xl border border-slate-800 text-center">
+                    <p class="text-[8px] text-slate-500 mb-1">SPREAD</p>
+                    <p id="m-spread" class="text-[11px] font-black text-white"></p>
+                    <p class="text-[8px] text-slate-600">bid/ask</p>
+                </div>
+            </div>
+
+            <!-- Audit trail -->
+            <div class="p-3 bg-slate-900/50 border border-slate-800 rounded-xl space-y-1.5">
+                <p class="text-[8px] text-slate-500 font-bold uppercase mb-2 tracking-widest">Alasan Sinyal</p>
+                <div id="m-audit" class="text-[10px] text-slate-300 font-bold uppercase space-y-1"></div>
+            </div>
+
+            <!-- Conditions checklist -->
+            <div class="p-3 bg-slate-900/50 border border-slate-800 rounded-xl">
+                <p class="text-[8px] text-slate-500 font-bold uppercase mb-2 tracking-widest">Kondisi Terpenuhi</p>
+                <div id="m-checks" class="space-y-1"></div>
+            </div>
         </div>
     </div>
 
@@ -67,47 +128,149 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
         let db = [], currentFil = 'ALL';
 
+        /* =========================================================
+           SIGNAL ENGINE v2 — Multi-Condition Confirmation
+           Sinyal HANYA keluar jika >= 3 kondisi terkonfirmasi.
+           Setiap kondisi dinilai secara independen, lalu dihitung.
+        ========================================================= */
+        function analyzeBottom(pair, ticker) {
+            const last   = parseFloat(ticker.last)    || 0;
+            const hi     = parseFloat(ticker.high)    || last;
+            const lo     = parseFloat(ticker.low)     || last;
+            const volIdr = parseFloat(ticker.vol_idr) || 0;
+            const buy    = parseFloat(ticker.buy)     || 0;
+            const sell   = parseFloat(ticker.sell)    || 0;
+
+            if (!last || lo === 0) return null;
+
+            const sym = pair.split('_')[0].toUpperCase();
+
+            /* ---- Metrik Dasar ---- */
+            const rangeAbs  = hi - lo;
+            const rangePct  = rangeAbs > 0 ? (rangeAbs / lo) * 100 : 0;           // volatilitas 24j (%)
+            const pir       = rangeAbs > 0 ? (last - lo) / rangeAbs : 0.5;        // 0 = bottom, 1 = top
+            const distBot   = ((last - lo) / lo) * 100;                           // % jarak dari low
+            const distTop   = hi > 0 ? ((hi - last) / hi) * 100 : 99;            // % jarak dari high
+            const spread    = (buy > 0 && sell > 0) ? ((sell - buy) / buy) * 100 : -1;
+            const volScore  = volIdr > 5e9 ? 3 : volIdr > 2e9 ? 2 : volIdr > 5e8 ? 1 : 0;
+
+            /* ---- Kondisi BUY (skor masing-masing bisa 1 atau 0.5) ---- */
+            let buyScore = 0, buyChecks = [];
+            const B = [
+                { cond: pir < 0.25,       w: 1,   label: "Posisi range < 25% (zona bawah)" },
+                { cond: pir < 0.35,       w: 0.5, label: "Posisi range < 35% (mendekati bawah)" },
+                { cond: distBot < 4,      w: 1,   label: "Harga < 4% dari support 24j" },
+                { cond: distBot < 7,      w: 0.5, label: "Harga < 7% dari support 24j" },
+                { cond: rangePct > 5,     w: 1,   label: "Volatilitas sehat > 5%" },
+                { cond: rangePct > 3,     w: 0.5, label: "Ada pergerakan range (> 3%)" },
+                { cond: volScore >= 2,    w: 1,   label: "Volume besar (>2B IDR)" },
+                { cond: volScore >= 1,    w: 0.5, label: "Volume cukup (>500M IDR)" },
+                { cond: spread > 0 && spread < 1.5, w: 0.5, label: "Spread bid/ask ketat (<1.5%)" },
+            ];
+            B.forEach(b => { if (b.cond) { buyScore += b.w; buyChecks.push({ label: b.label, ok: true }); } else { buyChecks.push({ label: b.label, ok: false }); } });
+
+            /* ---- Kondisi BREAKOUT ---- */
+            let brScore = 0, brChecks = [];
+            const BR = [
+                { cond: pir > 0.82,       w: 1,   label: "Posisi range > 82% (uji resistance)" },
+                { cond: pir > 0.75,       w: 0.5, label: "Posisi range > 75%" },
+                { cond: distTop < 3,      w: 1,   label: "Harga < 3% dari high 24j" },
+                { cond: rangePct > 8,     w: 1,   label: "Range besar > 8% (momentum kuat)" },
+                { cond: volScore >= 2,    w: 1,   label: "Volume konfirmasi (>2B IDR)" },
+                { cond: volScore >= 1,    w: 0.5, label: "Volume cukup untuk breakout" },
+            ];
+            BR.forEach(b => { if (b.cond) { brScore += b.w; brChecks.push({ label: b.label, ok: true }); } else { brChecks.push({ label: b.label, ok: false }); } });
+
+            /* ---- Tentukan Sinyal ---- */
+            // Filter keras: skip koin volume terlalu kecil dari sinyal utama
+            const minVol = volScore >= 1;
+
+            let lb = "NORMAL", sc = 20, audit = [], checks = [];
+
+            if (buyScore >= 3 && minVol) {
+                lb = "BUY";
+                sc = Math.min(97, 55 + Math.round(buyScore * 8));
+                audit = B.filter(b => b.cond).map(b => "✔ " + b.label);
+                checks = buyChecks;
+                if (rangePct < 3) { audit.push("⚠ Volatilitas rendah — konfirmasi volume lebih ketat"); sc -= 10; }
+            } else if (brScore >= 3 && minVol) {
+                lb = "BREAKOUT";
+                sc = Math.min(88, 50 + Math.round(brScore * 8));
+                audit = BR.filter(b => b.cond).map(b => "✔ " + b.label);
+                audit.push("⚠ Beli di area breakout = risiko tinggi, tunggu retrace");
+                checks = brChecks;
+            } else if (buyScore >= 2 && minVol) {
+                lb = "WATCH";
+                sc = 42;
+                audit = B.filter(b => b.cond).map(b => "◉ " + b.label);
+                audit.push("— Belum cukup konfirmasi, pantau lebih lanjut");
+                checks = buyChecks;
+            } else if (pir > 0.65 || distBot > 12) {
+                lb = "WARNING";
+                sc = 15;
+                audit = [
+                    "✕ Harga sudah naik jauh dari area bawah",
+                    "✕ Risiko beli di atas — tunggu koreksi",
+                ];
+                if (volScore === 0) audit.push("✕ Volume rendah, tidak ada minat pasar");
+                checks = [];
+            } else {
+                lb = "NORMAL";
+                sc = 28;
+                audit = ["— Tidak ada sinyal kuat saat ini", "— Kondisi belum memenuhi threshold"];
+                checks = [];
+            }
+
+            if (rangePct < 2.5) audit.push("⚠ Pasar sedang sideways/squeeze");
+            if (volScore === 0 && lb !== "WARNING") audit.push("⚠ Volume sangat rendah — waspadai illikuiditas");
+
+            /* ---- TP / SL berbasis ATR ---- */
+            const atr    = rangeAbs * 0.45;
+            const entry  = last;
+            const tp     = entry + atr * 1.8;
+            const sl     = entry - atr * 0.65;
+
+            return {
+                s: sym, p: last, lb, sc,
+                pir: Math.round(pir * 100),
+                rangePct: Math.round(rangePct * 10) / 10,
+                volScore, spread: spread >= 0 ? spread.toFixed(2) : "n/a",
+                entry, tp, sl,
+                audit, checks
+            };
+        }
+
+        /* =========================================================
+           FETCH & RENDER
+        ========================================================= */
         async function tarikData() {
             const btn = document.getElementById('btn');
-            btn.innerText = "HUNTING BOTTOM...";
+            btn.innerText = "HUNTING...";
+            btn.disabled = true;
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 const tickers = data.tickers;
                 db = [];
                 for (let key in tickers) {
-                    if (key.endsWith('_idr')) db.push(analyzeBottom(key, tickers[key]));
+                    if (key.endsWith('_idr')) {
+                        const result = analyzeBottom(key, tickers[key]);
+                        if (result) db.push(result);
+                    }
                 }
+                const total = db.length;
+                const buyCount  = db.filter(x => x.lb === 'BUY').length;
+                const watchCount= db.filter(x => x.lb === 'WATCH').length;
+                const brCount   = db.filter(x => x.lb === 'BREAKOUT').length;
+                document.getElementById('scan-info').innerText =
+                    `${total} pair | BUY: ${buyCount} | WATCH: ${watchCount} | BO: ${brCount}`;
                 render();
             } catch (err) {
-                alert("API Limit!");
+                alert("Gagal ambil data. API limit atau koneksi bermasalah.");
             } finally {
-                btn.innerText = "SCAN MARKET";
+                btn.innerText = "SCAN";
+                btn.disabled = false;
             }
-        }
-
-        function analyzeBottom(pair, ticker) {
-            const last = parseFloat(ticker.last), hi = parseFloat(ticker.high), lo = parseFloat(ticker.low), vol = parseFloat(ticker.vol_idr);
-            const sym = pair.split('_')[0].toUpperCase();
-            const rsi = Math.round(((last - lo) / (hi - lo)) * 100);
-            const gainFromLow = ((last - lo) / lo) * 100;
-            const range = (hi - lo) / lo;
-            
-            let lb = "NORMAL", bd = "", sc = 50, audit = [];
-
-            if (gainFromLow > 7 || rsi > 60) {
-                if (last >= hi * 0.98) { lb = "POTENSIAL BREAKOUT"; bd = "pot-badge"; sc = 70; audit.push("UJI RESISTANCE (HATI-HATI)"); }
-                else { lb = "WARNING"; bd = "warn-badge"; sc = 20; audit.push("HARGA SUDAH TERLALU TINGGI"); }
-            } 
-            else if (gainFromLow <= 5 && rsi < 55 && vol > 800000000) {
-                lb = "BUY"; bd = "buy-badge"; sc = 95;
-                audit.push("AREA AKUMULASI BAWAH (MURAH)");
-                audit.push("VOLUME WHALE TERDETEKSI");
-            }
-
-            if (range < 0.03) audit.push("SEDANG SIDEWAYS (SQUEEZE)");
-
-            return { s: sym, p: last, lb, bd, sc, rsi, entry: last, tp: last * 1.07, sl: last * 0.965, audit };
         }
 
         function setFil(f, btn) {
@@ -117,67 +280,118 @@
             render();
         }
 
+        function getPirColor(pir) {
+            if (pir <= 30) return '#00ff88';
+            if (pir <= 55) return '#facc15';
+            if (pir <= 75) return '#f97316';
+            return '#ef4444';
+        }
+
+        function getBorderClr(lb) {
+            const map = { BUY: 'border-green-400', WATCH: 'border-yellow-400', BREAKOUT: 'border-cyan-400', WARNING: 'border-red-500' };
+            return map[lb] || 'border-slate-800';
+        }
+
+        function getConfRingStyle(sc, lb) {
+            const colors = { BUY: '#00ff88', WATCH: '#facc15', BREAKOUT: '#38bdf8', WARNING: '#ef4444', NORMAL: '#334155' };
+            const c = colors[lb] || '#334155';
+            return `border-color:${c};color:${c}`;
+        }
+
         function render() {
             const container = document.getElementById('konten');
+            const priority = { BUY: 5, WATCH: 4, BREAKOUT: 3, WARNING: 2, NORMAL: 1 };
             let filtered = (currentFil === 'ALL') ? db : db.filter(x => x.lb === currentFil);
-            let sorted = filtered.sort((a,b) => b.sc - a.sc);
-            
+            let sorted = filtered
+                .filter(x => x.lb !== 'NORMAL' || currentFil === 'ALL')
+                .sort((a, b) => (priority[b.lb] - priority[a.lb]) || (b.sc - a.sc));
+
             if (sorted.length === 0) {
-                container.innerHTML = `<div class='text-center py-10 text-slate-600 uppercase text-[10px]'>Kosong di kategori ${currentFil}</div>`;
+                container.innerHTML = `<div class='text-center py-12 text-slate-600 uppercase text-[10px]'>Tidak ada sinyal di kategori "${currentFil}"</div>`;
                 return;
             }
 
             container.innerHTML = sorted.map(x => `
-                <div class="card-pro p-4 flex justify-between items-center border-l-4 ${getClr(x.lb)}" onclick="openModal('${x.s}')">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-md font-black text-white">${x.s}</span>
-                            ${x.bd ? `<span class="${x.bd}">${x.lb}</span>` : ''}
+                <div class="card-pro p-4 flex items-center gap-3 border-l-4 ${getBorderClr(x.lb)} cursor-pointer active:opacity-70 transition-opacity" onclick="openModal('${x.s}')">
+                    <div class="conf-ring" style="${getConfRingStyle(x.sc, x.lb)}">${x.sc}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-base font-black text-white">${x.s}</span>
+                            <span class="badge-${x.lb}">${x.lb}</span>
                         </div>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">RSI: ${x.rsi}% | VOL: IDR ${(x.sc > 50 ? 'Gede' : 'Kecil')}</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <div>
+                                <div class="pir-track"><div class="pir-fill" style="width:${x.pir}%;background:${getPirColor(x.pir)}"></div></div>
+                            </div>
+                            <span class="text-[8px] text-slate-500 font-bold">PIR ${x.pir}%</span>
+                            <span class="text-[8px] text-slate-500 font-bold">RNG ${x.rangePct}%</span>
+                            <span class="text-[8px] text-slate-500 font-bold">VOL ★${'★'.repeat(x.volScore)}${'☆'.repeat(3-x.volScore)}</span>
+                        </div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-shrink-0">
                         <p class="text-[12px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                        <p class="text-[8px] text-cyan-400 font-bold tracking-tighter italic">CEK AREA BAWAH</p>
+                        <p class="text-[8px] text-slate-500 font-bold mt-0.5">TP ${Math.round(x.tp).toLocaleString('id-ID')}</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        function getClr(lb) {
-            return lb==='BUY'?'border-green-400':(lb==='POTENSIAL BREAKOUT'?'border-cyan-400':(lb==='WARNING'?'border-red-500':'border-slate-800'));
-        }
-
+        /* =========================================================
+           MODAL
+        ========================================================= */
         function openModal(s) {
             const x = db.find(i => i.s === s);
+            if (!x) return;
+
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('m-sym').innerText = s;
-            document.getElementById('m-entry').innerText = "Rp " + x.entry.toLocaleString('id-ID');
-            document.getElementById('m-tp').innerText = "Rp " + Math.round(x.tp).toLocaleString('id-ID');
-            document.getElementById('m-sl').innerText = "Rp " + Math.round(x.sl).toLocaleString('id-ID');
-            document.getElementById('m-audit').innerHTML = x.audit.map(a => `<div>• ${a}</div>`).join('');
-            
+            document.getElementById('m-badge').innerHTML = `<span class="badge-${x.lb}">${x.lb}</span>`;
+            document.getElementById('m-conf-label').innerText = `Confidence Score: ${x.sc}/100`;
+
+            document.getElementById('m-entry').innerText  = "Rp " + x.entry.toLocaleString('id-ID');
+            document.getElementById('m-tp').innerText     = "Rp " + Math.round(x.tp).toLocaleString('id-ID');
+            document.getElementById('m-sl').innerText     = "Rp " + Math.round(x.sl).toLocaleString('id-ID');
+            document.getElementById('m-pir').innerText    = x.pir + "%";
+            document.getElementById('m-range').innerText  = x.rangePct + "%";
+            document.getElementById('m-vol').innerText    = "★".repeat(x.volScore) + "☆".repeat(3 - x.volScore);
+            document.getElementById('m-spread').innerText = x.spread !== 'n/a' ? x.spread + "%" : "n/a";
+
+            document.getElementById('m-audit').innerHTML = x.audit.map(a =>
+                `<div class="py-0.5 ${a.startsWith('✔')||a.startsWith('◉') ? 'text-green-400' : a.startsWith('✕') ? 'text-red-400' : 'text-yellow-400'}">${a}</div>`
+            ).join('');
+
+            if (x.checks && x.checks.length > 0) {
+                document.getElementById('m-checks').innerHTML = x.checks.map(c =>
+                    `<div class="flex items-center gap-2 text-[9px] ${c.ok ? 'text-slate-300' : 'text-slate-600'}">
+                        <span>${c.ok ? '✔' : '○'}</span><span class="uppercase">${c.label}</span>
+                    </div>`
+                ).join('');
+            } else {
+                document.getElementById('m-checks').innerHTML = '<p class="text-[9px] text-slate-600 uppercase">—</p>';
+            }
+
+            // TradingView chart
             document.getElementById('tv-box').innerHTML = "";
-            
-            // Perbaikan simbol: Pastikan format BINANCE:SYMBCLUSDT agar chart selalu muncul
             const cleanSymbol = s.replace(/[^a-zA-Z0-9]/g, "");
-            
             new TradingView.widget({
-                "autosize": true,
-                "symbol": "BINANCE:" + cleanSymbol + "USDT",
-                "interval": "60",
-                "theme": "dark",
-                "container_id": "tv-box",
-                "style": "1",
-                "locale": "id",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "allow_symbol_change": true,
-                "hide_side_toolbar": false
+                autosize: true,
+                symbol: "BINANCE:" + cleanSymbol + "USDT",
+                interval: "60",
+                theme: "dark",
+                container_id: "tv-box",
+                style: "1",
+                locale: "id",
+                enable_publishing: false,
+                allow_symbol_change: true,
+                hide_side_toolbar: false,
+                studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies"]
             });
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('tv-box').innerHTML = "";
+        }
     </script>
 </body>
 </html>
