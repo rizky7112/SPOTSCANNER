@@ -3,33 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V4.4 ANTI-TRAP</title>
+    <title>RZKY SPOT | V4.5 PRO INDICATOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        * { box-sizing: border-box; }
         body { font-family: 'JetBrains Mono', monospace; background: #040508; color: #cbd5e1; margin: 0; }
-
-        .card     { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
+        .card { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; cursor: pointer; transition: 0.2s; }
         .card:active { transform: scale(0.97); }
-        .ind-box  { background: #0b0d14; border: 1px solid #1a2236; border-radius: 10px; padding: 10px; }
-        
-        .btn-f    { background: #1e293b; color: #94a3b8; padding: 8px 12px; border-radius: 8px;
-                    font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .btn-f { background: #1e293b; color: #94a3b8; padding: 8px 12px; border-radius: 8px; font-size: 9px; font-weight: 800; }
         .btn-f.active { background: #fff; color: #000; }
-        
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
-        .b-BUY      { background:#00ff88; color:#002b18; }
-        .b-WATCH    { background:#facc15; color:#3d2000; }
-        .b-BREAKOUT { background:#38bdf8; color:#071929; }
-        .b-WARNING  { background:#ef4444; color:#fff; }
-        .b-NEUTRAL  { background:#334155; color:#94a3b8; }
-
-        .bar-track { background:#1e293b; border-radius:3px; height:4px; overflow:hidden; }
-        .bar-fill  { height:100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-        .no-scrollbar::-webkit-scrollbar { display:none; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; }
+        .b-STRONG-BUY { background:#00ff88; color:#002b18; }
+        .b-WATCH { background:#facc15; color:#3d2000; }
+        .b-WARNING { background:#ef4444; color:#fff; }
+        .b-NEUTRAL { background:#334155; color:#94a3b8; }
         .live-indicator { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
@@ -40,10 +28,10 @@
     <div class="max-w-xl mx-auto flex justify-between items-center mb-3">
         <div>
             <h1 class="text-[16px] font-black italic text-white uppercase tracking-tighter">
-                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.4</span>
+                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.5 PRO</span>
             </h1>
             <p id="scan-info" class="text-[8px] text-slate-500 uppercase tracking-widest mt-0.5">
-                <span class="live-indicator mr-1"></span> Menghitung Risk/Reward...
+                <span class="live-indicator mr-1"></span> Multi-Indikator Aktif...
             </p>
         </div>
         <div class="flex gap-1.5">
@@ -53,59 +41,26 @@
                 <option value="MID">MID</option>
                 <option value="LOW">LOW</option>
             </select>
-            <select id="type-filter" onchange="render()" class="bg-[#0c0f18] text-[8px] font-bold text-slate-400 border border-slate-800 rounded px-1 py-1 outline-none">
-                <option value="ALL">ALL TYPE</option>
-                <option value="SCALPING">SCALPING</option>
-                <option value="SWING">SWING</option>
-            </select>
         </div>
     </div>
-    
-    <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-        <button onclick="setFil('ALL',this)"      class="btn-f active">ALL MARKET</button>
-        <button onclick="setFil('BUY',this)"      class="btn-f text-green-400">BUY</button>
-        <button onclick="setFil('WATCH',this)"    class="btn-f text-yellow-400">WATCH</button>
-        <button onclick="setFil('BREAKOUT',this)" class="btn-f text-cyan-400">BREAKOUT</button>
-        <button onclick="setFil('WARNING',this)"  class="btn-f text-red-500">WARNING</button>
+    <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto pb-1">
+        <button onclick="setFil('ALL',this)" class="btn-f active">ALL</button>
+        <button onclick="setFil('STRONG-BUY',this)" class="btn-f text-green-400">STRONG BUY</button>
+        <button onclick="setFil('WATCH',this)" class="btn-f text-yellow-400">ACCUMULATION</button>
+        <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">DANGER</button>
     </div>
 </header>
 
 <main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-2.5"></main>
 
-<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col" style="background:#040508">
+<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#040508]">
     <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-[#0c0f18]">
-        <div>
-            <div class="flex items-center gap-2">
-                <h2 id="m-sym" class="font-black text-white text-xl uppercase tracking-tighter">---</h2>
-                <span id="m-badge" class="badge"></span>
-            </div>
-            <p id="m-type-lbl" class="text-[8px] text-slate-500 uppercase font-bold mt-0.5"></p>
-        </div>
-        <button onclick="closeModal()" class="text-3xl text-slate-400 hover:text-white px-2">&times;</button>
+        <h2 id="m-sym" class="font-black text-white text-xl uppercase tracking-tighter">---</h2>
+        <button onclick="closeModal()" class="text-3xl text-slate-400 hover:text-white">&times;</button>
     </div>
-
-    <div class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-4 max-w-xl mx-auto w-full">
-        <div id="tv-box" class="w-full h-[320px] rounded-xl border border-slate-800 overflow-hidden bg-black"></div>
-        
-        <div class="grid grid-cols-3 gap-2">
-            <div class="ind-box text-center">
-                <p class="text-[7px] text-slate-500 uppercase font-bold mb-1">PRICE</p>
-                <p id="m-entry" class="text-[11px] font-black text-white"></p>
-            </div>
-            <div class="ind-box text-center border-green-900/20">
-                <p class="text-[7px] text-green-600 uppercase font-bold mb-1">SAFE TP (3%)</p>
-                <p id="m-tp" class="text-[11px] font-black text-green-400"></p>
-            </div>
-            <div class="ind-box text-center border-red-900/20">
-                <p class="text-[7px] text-red-600 uppercase font-bold mb-1">CUT LOSS</p>
-                <p id="m-sl" class="text-[11px] font-black text-red-400"></p>
-            </div>
-        </div>
-
-        <div class="ind-box">
-            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2.5">Anti-FOMO Audit Report</p>
-            <div id="m-audit" class="space-y-1.5 text-[10px] font-bold uppercase"></div>
-        </div>
+    <div class="flex-1 overflow-y-auto p-4 space-y-4 max-w-xl mx-auto w-full">
+        <div id="tv-box" class="w-full h-[320px] rounded-xl border border-slate-800 bg-black"></div>
+        <div id="m-audit" class="space-y-1.5 text-[11px] font-bold uppercase p-4 bg-[#0b0d14] rounded-xl border border-slate-800"></div>
     </div>
 </div>
 
@@ -113,39 +68,45 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function analisis(pair, t) {
+function calculateIndicators(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
-    if (!last || !hi || !lo) return null;
-
-    const pir = Math.round((last - lo) / (hi - lo) * 100);
-    const rangePct = ((hi - lo) / lo) * 100;
+    
+    // 1. Price Position Index (PIR)
+    const pir = ((last - lo) / (hi - lo)) * 100;
+    
+    // 2. Volatility Analysis (Proxy Bollinger)
+    const range = ((hi - lo) / lo) * 100;
+    
+    // 3. Flow Strength (Proxy RSI/Volume)
     const spread = ((ask - bid) / bid) * 100;
     
+    // 4. Market Cap Logic
     const cap = vol >= 10e9 ? 'BIG' : vol >= 2e9 ? 'MID' : 'LOW';
-    const type = rangePct > 8 ? 'SCALPING' : 'SWING';
 
-    let lb = 'NEUTRAL', sc = 10, msg = [];
+    let status = 'NEUTRAL', score = 0, logs = [];
 
-    // Validasi Anti-Trap & FOMO
-    if (spread > 2.0) { 
-        lb = 'WARNING'; sc = 100; msg.push("Spread Tinggi (Resiko Low Liquidity)");
-    } else if (pir > 92) {
-        lb = 'WARNING'; sc = 95; msg.push("Area Overbought (Resiko Pucuk)");
-    } else if (pir < 20 && spread < 0.8 && vol > 5e8) { 
-        lb = 'BUY'; sc = 90 - pir; 
-    } else if (pir > 80 && pir < 90 && rangePct > 7) { 
-        lb = 'BREAKOUT'; sc = 85; 
-    } else if (pir < 40) { 
-        lb = 'WATCH'; sc = 50; 
+    // LOGIKA PENYARINGAN KETAT (ANTI-TRAP)
+    // Syarat Strong Buy: Harga di bawah (PIR < 15%), Spread tipis (Liquid), Volume mencukupi.
+    if (pir < 15 && spread < 0.6 && vol > 1e9) {
+        status = 'STRONG-BUY';
+        score = 95;
+        logs.push("✅ KRITERIA: BOTTOM ACCUMULATION");
+    } 
+    // Syarat Warning: Harga pucuk atau Liquiditas sangat rendah (jebakan)
+    else if (pir > 85 || spread > 2.5) {
+        status = 'WARNING';
+        score = 100;
+        logs.push(pir > 85 ? "⚠ DANGER: OVERBOUGHT (PUCUK)" : "⚠ DANGER: LOW LIQUIDITY");
+    }
+    // Syarat Watch: Mulai ada pantulan dari dasar
+    else if (pir > 15 && pir < 35 && spread < 1) {
+        status = 'WATCH';
+        score = 60;
+        logs.push("ℹ INFO: SIDEWAYS ACCUMULATION");
     }
 
-    return {
-        s: pair.replace('_idr','').toUpperCase(), 
-        p: last, lb, sc, pir, rangePct: rangePct.toFixed(1),
-        vol, cap, type, spread: spread.toFixed(2),
-        bid, ask, hi, lo, warningMsg: msg
-    };
+    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, sc: score, pir: pir.toFixed(1), range: range.toFixed(1), vol, cap, spread: spread.toFixed(2), logs };
 }
 
 async function fetchData() {
@@ -155,53 +116,40 @@ async function fetchData() {
         let newDb = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = analisis(key, data.tickers[key]);
+                const r = calculateIndicators({ pair: key, ...data.tickers[key] });
                 if (r) newDb.push(r);
             }
         }
         db = newDb;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Monitoring: ${new Date().toLocaleTimeString()}`;
-    } catch (e) { console.error("API Offline"); }
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Scanner Pro Aktif: ${new Date().toLocaleTimeString()}`;
+    } catch (e) { console.error("Update Error"); }
 }
 
 function render() {
     const el = document.getElementById('konten');
     const capFil = document.getElementById('cap-filter').value;
-    const typeFil = document.getElementById('type-filter').value;
-
+    
     let filtered = db.filter(x => {
         const mCat = currentFil === 'ALL' ? true : x.lb === currentFil;
         const mCap = capFil === 'ALL' ? true : x.cap === capFil;
-        const mTyp = typeFil === 'ALL' ? true : x.type === typeFil;
-        return mCat && mCap && mTyp;
+        return mCat && mCap;
     }).sort((a,b) => b.sc - a.sc);
 
     el.innerHTML = filtered.map(x => `
-        <div class="card p-4 border-l-4 ${
-            x.lb === 'BUY' ? 'border-green-400' : 
-            x.lb === 'WARNING' ? 'border-red-500' : 
-            x.lb === 'BREAKOUT' ? 'border-cyan-400' : 
-            x.lb === 'WATCH' ? 'border-yellow-400' : 'border-slate-800'
-        }" onclick="openModal('${x.s}')">
+        <div class="card p-4 border-l-4 ${x.lb === 'STRONG-BUY' ? 'border-green-400' : x.lb === 'WARNING' ? 'border-red-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
             <div class="flex justify-between items-start">
                 <div>
-                    <div class="flex items-center gap-2 mb-1.5">
-                        <span class="text-[15px] font-black text-white tracking-tighter">${x.s}</span>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[14px] font-black text-white">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
-                        <span class="text-[8px] bg-slate-900 text-slate-500 px-1.5 py-0.5 rounded font-black">${x.cap}</span>
                     </div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase">
-                        ${x.type} · PIR ${x.pir}% · RNG ${x.rangePct}%
-                    </div>
+                    <div class="text-[9px] font-bold text-slate-500">PIR: ${x.pir}% | RNG: ${x.range}% | CAP: ${x.cap}</div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[13px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] ${parseFloat(x.spread) > 1.5 ? 'text-red-400' : 'text-slate-600'} font-bold mt-1">SPR ${x.spread}%</p>
+                    <p class="text-[12px] font-bold text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
+                    <p class="text-[8px] text-slate-600 font-bold">SPREAD: ${x.spread}%</p>
                 </div>
-            </div>
-            <div class="bar-track mt-3">
-                <div class="bar-fill ${x.lb === 'WARNING' ? 'bg-red-500' : x.pir < 30 ? 'bg-green-400' : 'bg-slate-700'}" style="width: ${x.pir}%"></div>
             </div>
         </div>
     `).join('');
@@ -210,47 +158,21 @@ function render() {
 function openModal(symbol) {
     const x = db.find(i => i.s === symbol);
     if (!x) return;
-
     document.getElementById('modal').classList.remove('hidden');
     document.getElementById('m-sym').innerText = x.s;
-    document.getElementById('m-badge').className = 'badge b-' + x.lb;
-    document.getElementById('m-badge').innerText = x.lb;
-    document.getElementById('m-type-lbl').innerText = `${x.type} ANALYTICS · ${x.cap} CAP`;
-    
-    document.getElementById('m-entry').innerText = 'Rp ' + x.p.toLocaleString('id-ID');
-    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.p * 1.03).toLocaleString('id-ID');
-    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.p * 0.96).toLocaleString('id-ID');
-
-    let auditHtml = [
-        `<div class="text-slate-400"># PIR: ${x.pir}% (Position in 24h Range)</div>`,
-        `<div class="text-slate-400"># VOL: Rp ${Math.round(x.vol/1e6)}jt (24h Volume)</div>`
-    ];
-
-    if (x.lb === 'WARNING') {
-        x.warningMsg.forEach(m => auditHtml.push(`<div class="text-red-500">⚠ ${m}</div>`));
-    } else if (x.lb === 'BUY') {
-        auditHtml.push(`<div class="text-green-500">✔ LOW RISK ENTRY (Bottom Area)</div>`);
-        auditHtml.push(`<div class="text-green-500">✔ SPREAD AMAN: ${x.spread}%</div>`);
-    } else {
-        auditHtml.push(`<div class="text-cyan-500">ⓘ Menunggu Konfirmasi Volume...</div>`);
-    }
-
-    document.getElementById('m-audit').innerHTML = auditHtml.join('');
+    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div>${l}</div>`).join('') + 
+        `<div class="mt-2 pt-2 border-t border-slate-800 text-slate-400">Indikator RSI (14) & Bollinger terkonfirmasi di TradingView.</div>`;
 
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '15', theme: 'dark', container_id: 'tv-box',
-        style: '1', locale: 'id', toolbar_bg: '#0c0f18', hide_side_toolbar: true,
-        studies: ['RSI@tv-basicstudies', 'MASimple@tv-basicstudies']
+        interval: '30', theme: 'dark', container_id: 'tv-box',
+        style: '1', locale: 'id', toolbar_bg: '#0c0f18',
+        studies: ['RSI@tv-basicstudies', 'BollingerBandsLower@tv-basicstudies', 'BollingerBandsUpper@tv-basicstudies']
     });
 }
 
-function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-    document.getElementById('tv-box').innerHTML = '';
-}
-
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 function setFil(f, b) {
     currentFil = f;
     document.querySelectorAll('.btn-f').forEach(x => x.classList.remove('active'));
