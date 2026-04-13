@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V4.2 PRO</title>
+    <title>RZKY SPOT | V4.3 ULTRA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -11,38 +11,38 @@
         * { box-sizing: border-box; }
         body { font-family: 'JetBrains Mono', monospace; background: #040508; color: #cbd5e1; margin: 0; }
 
-        .card     { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; transition: all 0.2s; }
-        .card:active { transform: scale(0.98); opacity: 0.7; }
+        .card     { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
+        .card:active { transform: scale(0.97); }
         .ind-box  { background: #0b0d14; border: 1px solid #1a2236; border-radius: 10px; padding: 10px; }
         
         .btn-f    { background: #1e293b; color: #94a3b8; padding: 8px 12px; border-radius: 8px;
-                    font-size: 9px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+                    font-size: 9px; font-weight: 800; white-space: nowrap; }
         .btn-f.active { background: #fff; color: #000; }
         
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         .b-BUY      { background:#00ff88; color:#002b18; }
         .b-WATCH    { background:#facc15; color:#3d2000; }
         .b-BREAKOUT { background:#38bdf8; color:#071929; }
         .b-WARNING  { background:#ef4444; color:#fff; }
 
         .bar-track { background:#1e293b; border-radius:3px; height:4px; overflow:hidden; }
-        .bar-fill  { height:100%; transition: width 0.5s; }
+        .bar-fill  { height:100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
         .no-scrollbar::-webkit-scrollbar { display:none; }
         .live-indicator { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-24">
 
 <header class="sticky top-0 z-50 bg-[#040508]/95 border-b border-slate-800/70 px-4 pt-4 pb-3 backdrop-blur-md">
     <div class="max-w-xl mx-auto flex justify-between items-center mb-3">
         <div>
             <h1 class="text-[16px] font-black italic text-white uppercase tracking-tighter">
-                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.2</span>
+                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.3</span>
             </h1>
             <p id="scan-info" class="text-[8px] text-slate-500 uppercase tracking-widest mt-0.5">
-                <span class="live-indicator mr-1"></span> Menunggu Data...
+                <span class="live-indicator mr-1"></span> Mengambil Data Terkini...
             </p>
         </div>
         <div class="flex gap-1.5">
@@ -65,12 +65,11 @@
         <button onclick="setFil('BUY',this)"      class="btn-f text-green-400">BUY</button>
         <button onclick="setFil('WATCH',this)"    class="btn-f text-yellow-400">WATCH</button>
         <button onclick="setFil('BREAKOUT',this)" class="btn-f text-cyan-400">BREAKOUT</button>
+        <button onclick="setFil('WARNING',this)"  class="btn-f text-red-500">WARNING</button>
     </div>
 </header>
 
-<main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-2.5">
-    <div class="text-center py-20 text-slate-700 text-[10px] uppercase tracking-widest">Memulai sinkronisasi mesin...</div>
-</main>
+<main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-2.5"></main>
 
 <div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col" style="background:#040508">
     <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-[#0c0f18]">
@@ -85,25 +84,25 @@
     </div>
 
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-4 max-w-xl mx-auto w-full">
-        <div id="tv-box" class="w-full h-[300px] rounded-xl border border-slate-800 overflow-hidden bg-black"></div>
+        <div id="tv-box" class="w-full h-[320px] rounded-xl border border-slate-800 overflow-hidden bg-black"></div>
         
         <div class="grid grid-cols-3 gap-2">
             <div class="ind-box text-center">
-                <p class="text-[7px] text-slate-500 uppercase font-bold mb-1">ENTRY</p>
+                <p class="text-[7px] text-slate-500 uppercase font-bold mb-1">CURRENT</p>
                 <p id="m-entry" class="text-[11px] font-black text-white"></p>
             </div>
-            <div class="ind-box text-center border-green-900/30">
+            <div class="ind-box text-center border-green-900/20">
                 <p class="text-[7px] text-green-600 uppercase font-bold mb-1">TARGET TP</p>
                 <p id="m-tp" class="text-[11px] font-black text-green-400"></p>
             </div>
-            <div class="ind-box text-center border-red-900/30">
+            <div class="ind-box text-center border-red-900/20">
                 <p class="text-[7px] text-red-600 uppercase font-bold mb-1">STOP LOSS</p>
                 <p id="m-sl" class="text-[11px] font-black text-red-400"></p>
             </div>
         </div>
 
         <div class="ind-box">
-            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2.5">MTF Audit Log</p>
+            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2.5">Real-time Analysis Audit</p>
             <div id="m-audit" class="space-y-1.5 text-[10px] font-bold uppercase"></div>
         </div>
     </div>
@@ -122,20 +121,36 @@ function analisis(pair, t) {
     const rangePct = ((hi - lo) / lo) * 100;
     const spread = ((ask - bid) / bid) * 100;
     
-    // Logic Cap & Type
-    const cap = vol >= 8e9 ? 'BIG' : vol >= 1.5e9 ? 'MID' : 'LOW';
-    const type = rangePct > 9 ? 'SCALPING' : 'SWING';
+    const cap = vol >= 10e9 ? 'BIG' : vol >= 2e9 ? 'MID' : 'LOW';
+    const type = rangePct > 8 ? 'SCALPING' : 'SWING';
 
-    let lb = 'NORMAL', sc = 0;
-    if (pir < 25 && spread < 1.5) { lb = 'BUY'; sc = 85 - pir; }
-    else if (pir > 88 && rangePct > 6) { lb = 'BREAKOUT'; sc = 80; }
-    else if (pir < 40) { lb = 'WATCH'; sc = 50; }
+    let lb = 'NORMAL', sc = 0, msg = [];
+
+    // Logika Sinyal
+    if (spread > 2.5 || pir > 95) { 
+        lb = 'WARNING'; 
+        sc = 100; 
+        if(spread > 2.5) msg.push("Spread Terlalu Lebar");
+        if(pir > 95) msg.push("Harga Area Pucuk (Overbought)");
+    } 
+    else if (pir < 22 && spread < 1) { 
+        lb = 'BUY'; 
+        sc = 90 - pir; 
+    }
+    else if (pir > 85 && rangePct > 6) { 
+        lb = 'BREAKOUT'; 
+        sc = 85; 
+    }
+    else if (pir < 40) { 
+        lb = 'WATCH'; 
+        sc = 40; 
+    }
 
     return {
         s: pair.replace('_idr','').toUpperCase(), 
         p: last, lb, sc, pir, rangePct: rangePct.toFixed(1),
         vol, cap, type, spread: spread.toFixed(2),
-        bid, ask, hi, lo
+        bid, ask, hi, lo, warningMsg: msg
     };
 }
 
@@ -152,8 +167,8 @@ async function fetchData() {
         }
         db = newDb;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Updated: ${new Date().toLocaleTimeString()}`;
-    } catch (e) { console.error("Update Error"); }
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Live Refresh: ${new Date().toLocaleTimeString()}`;
+    } catch (e) { console.error("Sync Error"); }
 }
 
 function render() {
@@ -169,19 +184,19 @@ function render() {
     }).sort((a,b) => b.sc - a.sc);
 
     if (!rows.length) {
-        el.innerHTML = `<div class="text-center py-20 text-slate-700 text-[10px] uppercase">No Signals Matching Filters</div>`;
+        el.innerHTML = `<div class="text-center py-20 text-slate-700 text-[10px] uppercase font-bold tracking-[0.2em]">Sinyal Tidak Ditemukan</div>`;
         return;
     }
 
     el.innerHTML = rows.map(x => `
-        <div class="card p-4 border-l-4 ${x.lb === 'BUY' ? 'border-green-400' : x.lb === 'BREAKOUT' ? 'border-cyan-400' : 'border-slate-800'}" 
+        <div class="card p-4 border-l-4 ${x.lb === 'BUY' ? 'border-green-400' : x.lb === 'WARNING' ? 'border-red-500' : x.lb === 'BREAKOUT' ? 'border-cyan-400' : 'border-slate-800'}" 
              onclick="openModal('${x.s}')">
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center gap-2 mb-1.5">
-                        <span class="text-[15px] font-black text-white tracking-tight">${x.s}</span>
+                        <span class="text-[15px] font-black text-white tracking-tighter">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
-                        <span class="text-[8px] bg-slate-900 text-slate-500 px-1.5 py-0.5 rounded font-bold">${x.cap}</span>
+                        <span class="text-[8px] bg-slate-900 text-slate-500 px-1.5 py-0.5 rounded font-black">${x.cap}</span>
                     </div>
                     <div class="text-[9px] font-bold text-slate-500 uppercase">
                         ${x.type} · PIR ${x.pir}% · RNG ${x.rangePct}%
@@ -189,11 +204,11 @@ function render() {
                 </div>
                 <div class="text-right">
                     <p class="text-[13px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] text-slate-600 font-bold mt-1">SPR ${x.spread}%</p>
+                    <p class="text-[8px] ${parseFloat(x.spread) > 2 ? 'text-red-500' : 'text-slate-600'} font-bold mt-1">SPR ${x.spread}%</p>
                 </div>
             </div>
             <div class="bar-track mt-3">
-                <div class="bar-fill ${x.pir < 30 ? 'bg-green-400' : 'bg-slate-700'}" style="width: ${x.pir}%"></div>
+                <div class="bar-fill ${x.lb === 'WARNING' ? 'bg-red-500' : x.pir < 30 ? 'bg-green-400' : 'bg-slate-700'}" style="width: ${x.pir}%"></div>
             </div>
         </div>
     `).join('');
@@ -203,37 +218,37 @@ function openModal(symbol) {
     const x = db.find(i => i.s === symbol);
     if (!x) return;
 
-    const modal = document.getElementById('modal');
-    modal.classList.remove('hidden');
-    
+    document.getElementById('modal').classList.remove('hidden');
     document.getElementById('m-sym').innerText = x.s;
     document.getElementById('m-badge').className = 'badge b-' + x.lb;
     document.getElementById('m-badge').innerText = x.lb;
-    document.getElementById('m-type-lbl').innerText = `${x.type} STRATEGY · ${x.cap} CAP`;
+    document.getElementById('m-type-lbl').innerText = `${x.type} · ${x.cap} CAP`;
     
     document.getElementById('m-entry').innerText = 'Rp ' + x.p.toLocaleString('id-ID');
-    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.p * 1.07).toLocaleString('id-ID');
-    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.p * 0.96).toLocaleString('id-ID');
+    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.p * 1.05).toLocaleString('id-ID');
+    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.p * 0.97).toLocaleString('id-ID');
 
-    // Audit Log logic
-    const audit = [
-        `✔ POSITION: ${x.pir}% from 24h Low`,
-        `✔ VOLATILITY: ${x.rangePct}% Daily Range`,
-        `✔ LIQUIDITY: Rp ${Math.round(x.vol/1e6)}jt Volume`,
-        x.spread < 1 ? `✔ SPREAD: ${x.spread}% (Healthy)` : `⚠ SPREAD: ${x.spread}% (Wide)`,
-        x.type === 'SCALPING' ? `⚡ Momentum tinggi terdeteksi` : `🌊 Pergerakan swing stabil`
+    let auditHtml = [
+        `<div class="text-cyan-500">✔ Posisi Harga: ${x.pir}% dari Low 24 Jam</div>`,
+        `<div class="text-cyan-500">✔ Volatilitas: ${x.rangePct}% (Range Harian)</div>`,
+        `<div class="text-cyan-500">✔ Volume: Rp ${Math.round(x.vol/1e6)}jt</div>`
     ];
-    
-    document.getElementById('m-audit').innerHTML = audit.map(a => 
-        `<div class="${a.includes('⚠') ? 'text-orange-500' : 'text-cyan-500'}">${a}</div>`
-    ).join('');
 
-    // TradingView
+    if (x.lb === 'WARNING') {
+        x.warningMsg.forEach(m => {
+            auditHtml.push(`<div class="text-red-500">❌ ALERT: ${m}</div>`);
+        });
+    } else {
+        auditHtml.push(`<div class="${x.spread > 1.5 ? 'text-yellow-500' : 'text-green-500'}">✔ Spread: ${x.spread}% ${x.spread > 1.5 ? '(Hati-hati)' : '(Sangat Bagus)'}</div>`);
+    }
+
+    document.getElementById('m-audit').innerHTML = auditHtml.join('');
+
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '60', theme: 'dark', container_id: 'tv-box',
-        style: '1', locale: 'id', toolbar_bg: '#0c0f18',
+        interval: '30', theme: 'dark', container_id: 'tv-box',
+        style: '1', locale: 'id', toolbar_bg: '#0c0f18', hide_side_toolbar: true,
         studies: ['RSI@tv-basicstudies', 'MASimple@tv-basicstudies']
     });
 }
@@ -250,9 +265,8 @@ function setFil(f, b) {
     render();
 }
 
-// Start
 fetchData();
-setInterval(fetchData, 30000); // Auto refresh 30 detik
+setInterval(fetchData, 30000);
 </script>
 </body>
 </html>
