@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY DASHBOARD | V5.6 VOLATILITY</title>
+    <title>RZKY DASHBOARD | V5.7 AGGRESSIVE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -14,9 +14,8 @@
         .btn-f { background: #161d2f; color: #64748b; padding: 10px 14px; border-radius: 8px; font-size: 9px; font-weight: 800; border: 1px solid #1e293b; white-space: nowrap; }
         .btn-f.active { background: #fff; color: #000; }
         .badge { padding: 3px 8px; border-radius: 5px; font-size: 9px; font-weight: 900; }
-        .b-BUY      { background: #10b981; color: #fff; }
-        .b-AKUM     { background: #3b82f6; color: #fff; }
-        .b-NETRAL   { background: #475569; color: #fff; }
+        .b-BUY      { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+        .b-NETRAL   { background: #334155; color: #cbd5e1; }
         .b-WARNING  { background: #ef4444; color: #fff; }
         .live-indicator { width: 7px; height: 7px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -29,10 +28,10 @@
     <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
         <div>
             <h1 class="text-[17px] font-black text-white italic tracking-tighter uppercase">
-                RZKY <span class="text-emerald-500">VOLATILITY</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V5.6</span>
+                RZKY <span class="text-emerald-500">AGGRESSIVE</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V5.7</span>
             </h1>
             <p id="scan-info" class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                <span class="live-indicator mr-2"></span> BB + MFI + OBV System Active
+                <span class="live-indicator mr-2"></span> High-Sensitivity Mode Active
             </p>
         </div>
         <select id="cap-filter" onchange="render()" class="bg-[#0a0d17] text-[9px] font-bold text-slate-400 border border-slate-800 rounded-lg px-2 py-1.5 outline-none">
@@ -42,9 +41,9 @@
         </select>
     </div>
     <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar">
-        <button onclick="setFil('ALL',this)" class="btn-f active">SEMUA</button>
-        <button onclick="setFil('BUY',this)" class="btn-f text-emerald-400">BUY (BO/REV)</button>
-        <button onclick="setFil('AKUM',this)" class="btn-f text-blue-400">AKUMULASI</button>
+        <button onclick="setFil('ALL',this)" class="btn-f active">SEMUA KOIN</button>
+        <button onclick="setFil('BUY',this)" class="btn-f text-emerald-400">BUY SIGNALS</button>
+        <button onclick="setFil('NETRAL',this)" class="btn-f text-slate-400">NETRAL</button>
         <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">WARNING</button>
     </div>
 </header>
@@ -64,15 +63,15 @@
         
         <div class="grid grid-cols-3 gap-2">
             <div class="p-3 bg-[#0a0d17] border border-slate-800 rounded-xl text-center">
-                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Entry Area</p>
+                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Entry Price</p>
                 <p id="m-entry" class="text-[11px] font-black text-white">---</p>
             </div>
-            <div class="p-3 bg-[#0a0d17] border border-emerald-900/30 rounded-xl text-center">
-                <p class="text-[8px] text-emerald-500 font-bold uppercase mb-1">TP (BB Top)</p>
+            <div class="p-3 bg-[#0a0d17] border border-emerald-900/30 rounded-xl text-center shadow-lg shadow-emerald-900/10">
+                <p class="text-[8px] text-emerald-500 font-bold uppercase mb-1">Take Profit</p>
                 <p id="m-tp" class="text-[11px] font-black text-emerald-400">---</p>
             </div>
-            <div class="p-3 bg-[#0a0d17] border border-red-900/30 rounded-xl text-center">
-                <p class="text-[8px] text-red-500 font-bold uppercase mb-1">SL (Safety)</p>
+            <div class="p-3 bg-[#0a0d17] border border-red-900/30 rounded-xl text-center shadow-lg shadow-red-900/10">
+                <p class="text-[8px] text-red-500 font-bold uppercase mb-1">Stop Loss</p>
                 <p id="m-sl" class="text-[11px] font-black text-red-400">---</p>
             </div>
         </div>
@@ -85,7 +84,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function volatilityAnalysis(t) {
+function aggressiveAnalysis(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
     
@@ -96,30 +95,29 @@ function volatilityAnalysis(t) {
 
     let status = 'NETRAL', logs = [];
 
-    // VOLATILITY LOGIC (BB + MFI + OBV)
-    // Sinyal BUY sekarang lebih fleksibel: Breakout atau Reversal di Bottom BB
-    const isHighVolume = vol > 7e9;
-    const isReversal = pir < 25 && isHighVolume; // Pantulan bawah
-    const isBreakout = pir > 55 && pir < 88 && range > 8 && isHighVolume; // Ledakan volume
-
+    // AGGRESSIVE LOGIC (Sinyal Akumulasi dipindah ke BUY)
+    const isHighVolume = vol > 1e9; // Syarat volume minimal agar tidak koin mati
+    
     if (pir > 95 || spread > 2.8) {
         status = 'WARNING';
-        logs.push("🛑 WARNING: PRICE OUTSIDE UPPER BB / NO LIKUID");
-    } else if (isReversal || isBreakout) {
+        logs.push("🛑 WARNING: PRICE AT PEAK / HIGH SLIPPAGE");
+    } 
+    // Gabungan Akumulasi + Reversal + Breakout jadi Sinyal BUY
+    else if (pir < 45 || (pir >= 45 && pir < 88 && range > 7 && isHighVolume)) {
         status = 'BUY';
-        logs.push(isBreakout ? "🚀 BUY: BOLLINGER BREAKOUT + MFI UP" : "🔄 BUY: BOTTOM REVERSAL DETECTED");
-    } else if (pir < 45 && vol > 1.5e9) {
-        status = 'AKUM';
-        logs.push("🔵 AKUMULASI: MFI & OBV STEADY");
-    } else {
+        if (pir < 20) logs.push("🔄 BUY: REVERSAL / BOTTOM AREA");
+        else if (pir < 45) logs.push("🔵 BUY: STRONG ACCUMULATION ZONE");
+        else logs.push("🚀 BUY: BREAKOUT MOMENTUM DETECTED");
+    } 
+    else {
         status = 'NETRAL';
-        logs.push("⚪ NETRAL: INSIDE BB RANGE");
+        logs.push("⚪ NETRAL: STABLE PRICE ACTION");
     }
 
-    // Dynamic Target (Berdasarkan Lebar Bollinger/Range)
-    const dynamicFactor = Math.max(range * 0.5, 4.5);
-    const tp = last * (1 + (dynamicFactor / 100));
-    const sl = last * (1 - (dynamicFactor * 0.55 / 100));
+    // Dynamic Target (Berdasarkan Volatilitas / Bollinger Range)
+    const targetScale = Math.max(range * 0.5, 5); 
+    const tp = last * (1 + (targetScale / 100));
+    const sl = last * (1 - (targetScale * 0.6 / 100));
 
     return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, pir: pir.toFixed(1), vol, cap, spread: spread.toFixed(2), logs, tp, sl, range };
 }
@@ -131,13 +129,13 @@ async function fetchData() {
         let list = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = volatilityAnalysis({ pair: key, ...data.tickers[key] });
+                const r = aggressiveAnalysis({ pair: key, ...data.tickers[key] });
                 if (r) list.push(r);
             }
         }
         db = list;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Auto-Sync (30s): ${new Date().toLocaleTimeString()}`;
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Live Update (30s): ${new Date().toLocaleTimeString()}`;
     } catch (e) { console.error("Sync Error"); }
 }
 
@@ -150,23 +148,23 @@ function render() {
         const mCap = capFil === 'ALL' ? true : x.cap === capFil;
         return mCat && mCap;
     }).sort((a,b) => {
-        const order = { 'BUY': 1, 'AKUM': 2, 'NETRAL': 3, 'WARNING': 4 };
+        const order = { 'BUY': 1, 'NETRAL': 2, 'WARNING': 3 };
         return order[a.lb] - order[b.lb];
     });
 
     el.innerHTML = filtered.map(x => `
-        <div class="card p-5 border-l-4 ${x.lb === 'BUY' ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : x.lb === 'AKUM' ? 'border-blue-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
+        <div class="card p-5 border-l-4 ${x.lb === 'BUY' ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}" onclick="openModal('${x.s}')">
             <div class="flex justify-between items-center">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[16px] font-black text-white tracking-tighter">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
                     </div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase">PIR ${x.pir}% · RNG ${x.range.toFixed(1)}%</div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase">PIR ${x.pir}% · ${x.cap} CAP</div>
                 </div>
                 <div class="text-right">
                     <p class="text-[14px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] font-bold text-slate-600 mt-1 uppercase italic">Target: +${((x.tp/x.p - 1)*100).toFixed(1)}%</p>
+                    <p class="text-[8px] font-bold text-slate-600 mt-1 uppercase italic">Potensi: +${((x.tp/x.p - 1)*100).toFixed(1)}%</p>
                 </div>
             </div>
         </div>
@@ -184,7 +182,7 @@ function openModal(symbol) {
     document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.tp).toLocaleString('id-ID');
     document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.sl).toLocaleString('id-ID');
 
-    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="${l.includes('🚀') || l.includes('🔄') ? 'text-emerald-400' : 'text-slate-400'}">${l}</div>`).join('') + 
+    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="${l.includes('BUY') ? 'text-emerald-400' : 'text-slate-400'}">${l}</div>`).join('') + 
         `<div class="text-slate-600 mt-3 text-[9px] border-t border-slate-800 pt-2 italic tracking-tight uppercase">Validator: Bollinger Bands, RSI, OBV, CMF, MFI (TF 1H).</div>`;
 
     document.getElementById('tv-box').innerHTML = '';
@@ -211,7 +209,7 @@ function setFil(f, b) {
 }
 
 fetchData();
-setInterval(fetchData, 30000); // Auto-Refresh Tetap 30 Detik
+setInterval(fetchData, 30000); // Auto-Refresh 30 Detik
 </script>
 </body>
 </html>
