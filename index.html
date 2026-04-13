@@ -3,66 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V4.7 MULTI-CONFLUENCE</title>
+    <title>RZKY SPOT | V4.8 ELITE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; background: #040508; color: #cbd5e1; margin: 0; }
-        .card { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        body { font-family: 'JetBrains Mono', monospace; background: #020305; color: #cbd5e1; margin: 0; }
+        .card { background: #0c0f18; border: 1px solid #1a2236; border-radius: 12px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
+        .card:hover { border-color: #334155; }
         .card:active { transform: scale(0.97); }
-        .btn-f { background: #1e293b; color: #94a3b8; padding: 8px 12px; border-radius: 8px; font-size: 9px; font-weight: 800; border: 1px solid transparent; }
-        .btn-f.active { background: #00ff88; color: #002b18; border-color: #00ff88; }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; }
-        .b-STRONG-BUY { background:#00ff88; color:#002b18; }
-        .b-ACCUMULATE { background:#facc15; color:#3d2000; }
-        .b-WARNING    { background:#ef4444; color:#fff; }
-        .b-NEUTRAL    { background:#334155; color:#94a3b8; }
-        .live-indicator { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .btn-f { background: #111827; color: #64748b; padding: 10px 14px; border-radius: 10px; font-size: 10px; font-weight: 800; border: 1px solid #1f2937; }
+        .btn-f.active { background: #fff; color: #000; border-color: #fff; }
+        .badge { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; letter-spacing: -0.02em; }
+        .b-STRONG-BUY { background: linear-gradient(135deg, #00ff88, #00cc6e); color: #002b18; }
+        .b-WATCH { background: #facc15; color: #3d2000; }
+        .b-WARNING { background: #ef4444; color: #fff; }
+        .live-indicator { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; box-shadow: 0 0 10px rgba(0,255,136,0.5); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body class="pb-24">
 
-<header class="sticky top-0 z-50 bg-[#040508]/95 border-b border-slate-800/70 px-4 pt-4 pb-3 backdrop-blur-md">
-    <div class="max-w-xl mx-auto flex justify-between items-center mb-3">
+<header class="sticky top-0 z-50 bg-[#020305]/90 border-b border-slate-800/50 px-5 pt-5 pb-4 backdrop-blur-xl">
+    <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
         <div>
-            <h1 class="text-[16px] font-black italic text-white uppercase tracking-tighter">
-                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.7 QUANT</span>
+            <h1 class="text-[18px] font-black text-white uppercase tracking-tighter italic">
+                RZKY <span class="text-emerald-400">ELITE</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V4.8</span>
             </h1>
-            <p id="scan-info" class="text-[8px] text-slate-500 uppercase tracking-widest mt-0.5">
-                <span class="live-indicator mr-1"></span> Multi-TF Engine Active...
+            <p id="scan-info" class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">
+                <span class="live-indicator mr-2"></span> Syncing CMF & EMA...
             </p>
         </div>
-        <div class="flex gap-1.5">
-            <select id="cap-filter" onchange="render()" class="bg-[#0c0f18] text-[8px] font-bold text-slate-400 border border-slate-800 rounded px-1 py-1 outline-none">
-                <option value="ALL">ALL CAP</option>
-                <option value="BIG">BIG</option>
-                <option value="MID">MID</option>
-                <option value="LOW">LOW</option>
-            </select>
-        </div>
+        <select id="cap-filter" onchange="render()" class="bg-[#0c0f18] text-[10px] font-bold text-slate-400 border border-slate-800 rounded-lg px-2 py-1.5 outline-none">
+            <option value="ALL">ALL MARKET</option>
+            <option value="BIG">BIG CAP</option>
+            <option value="MID">MID CAP</option>
+            <option value="LOW">LOW CAP</option>
+        </select>
     </div>
-    <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-        <button onclick="setFil('ALL',this)" class="btn-f active">ALL MARKET</button>
-        <button onclick="setFil('STRONG-BUY',this)" class="btn-f text-green-400">STRONG BUY</button>
-        <button onclick="setFil('ACCUMULATE',this)" class="btn-f text-yellow-400">ACCUMULATION</button>
-        <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">WARNING</button>
+    <div class="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar">
+        <button onclick="setFil('ALL',this)" class="btn-f active">DASHBOARD</button>
+        <button onclick="setFil('STRONG-BUY',this)" class="btn-f">STRONG BUY</button>
+        <button onclick="setFil('WATCH',this)" class="btn-f">ACCUMULATION</button>
     </div>
 </header>
 
-<main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-2.5"></main>
+<main id="konten" class="px-5 py-5 max-w-xl mx-auto space-y-3"></main>
 
-<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#040508]">
-    <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-[#0c0f18]">
-        <h2 id="m-sym" class="font-black text-white text-xl uppercase tracking-tighter">---</h2>
-        <button onclick="closeModal()" class="text-3xl text-slate-400 hover:text-white">&times;</button>
+<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#020305]">
+    <div class="px-5 py-4 border-b border-slate-800/50 flex justify-between items-center bg-[#0c0f18]">
+        <div>
+            <h2 id="m-sym" class="font-black text-white text-2xl uppercase tracking-tighter">---</h2>
+            <div id="m-status-box" class="mt-1"></div>
+        </div>
+        <button onclick="closeModal()" class="text-4xl text-slate-500 hover:text-white transition-colors">&times;</button>
     </div>
-    <div class="flex-1 overflow-y-auto p-4 space-y-4 max-w-xl mx-auto w-full">
-        <div id="tv-box" class="w-full h-[320px] rounded-xl border border-slate-800 bg-black"></div>
-        <div class="grid grid-cols-2 gap-2">
-            <div id="m-audit" class="text-[10px] font-bold uppercase p-4 bg-[#0b0d14] rounded-xl border border-slate-800"></div>
-            <div id="m-levels" class="text-[10px] font-bold uppercase p-4 bg-[#0b0d14] rounded-xl border border-slate-800 space-y-2 text-right"></div>
+    <div class="flex-1 overflow-y-auto p-5 space-y-5 max-w-xl mx-auto w-full">
+        <div id="tv-box" class="w-full h-[350px] rounded-2xl border border-slate-800 overflow-hidden bg-black shadow-2xl"></div>
+        <div class="grid grid-cols-1 gap-3">
+            <div class="p-5 bg-[#0c0f18] rounded-2xl border border-slate-800/50">
+                <p class="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-3">Confluence Analysis</p>
+                <div id="m-audit" class="space-y-2 text-[11px] font-bold uppercase"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -71,53 +73,55 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function processQuant(t) {
+function eliteAnalysis(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
     
     const pir = ((last - lo) / (hi - lo)) * 100;
     const spread = ((ask - bid) / bid) * 100;
-    const cap = vol >= 10e9 ? 'BIG' : vol >= 2e9 ? 'MID' : 'LOW';
+    const cap = vol >= 12e9 ? 'BIG' : vol >= 3e9 ? 'MID' : 'LOW';
 
-    let status = 'NEUTRAL', score = 0, analysis = [];
+    let status = 'NEUTRAL', score = 0, logs = [];
 
-    // QUANT LOGIC: CONFLUENCE CHECK
-    const isBottom = pir < 15;
-    const isLiquid = spread < 0.7;
-    const hasVolume = vol > 1e9;
-    
-    if (isBottom && isLiquid && hasVolume) {
+    // ELITE LOGIC: MULTI-CONFLUENCE
+    const c1 = pir < 12; // Price Action: Bottom 12% range
+    const c2 = spread < 0.55; // Liquidity: Low Slippage
+    const c3 = vol > 2e9; // Smart Money: Minimum volume depth
+
+    if (c1 && c2 && c3) {
         status = 'STRONG-BUY';
-        score = 90 + (15 - pir);
-        analysis.push("✅ CONFLUENCE: BOTTOM + VOLUME + SPREAD");
-    } else if (pir > 90 || spread > 2.5) {
+        score = 95 - pir;
+        logs.push("💎 ELITE: PRICE AT HISTORICAL SUPPORT (24H)");
+        logs.push("💎 ELITE: VOLUME ACCUMULATION DETECTED");
+        logs.push("💎 ELITE: OPTIMAL SPREAD FOR ENTRY");
+    } else if (pir > 88 || spread > 2.2) {
         status = 'WARNING';
         score = 100;
-        analysis.push(pir > 90 ? "⚠ OVERBOUGHT: POTENSI REJECTION" : "⚠ RISK: SLIPPAGE TINGGI");
-    } else if (pir < 30 && isLiquid) {
-        status = 'ACCUMULATE';
-        score = 50;
-        analysis.push("ℹ ACCUMULATION ZONE");
+        logs.push(pir > 88 ? "🛑 WARNING: OVEREXTENDED (PUCUK)" : "🛑 WARNING: LOW LIQUIDITY TRAP");
+    } else if (pir < 25) {
+        status = 'WATCH';
+        score = 40;
+        logs.push("🔍 INFO: POTENTIAL REVERSAL WATCHLIST");
     }
 
-    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, sc: score, pir: pir.toFixed(1), vol, cap, spread: spread.toFixed(2), logs: analysis };
+    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, sc: score, pir: pir.toFixed(1), spread: spread.toFixed(2), cap, logs, vol };
 }
 
 async function fetchData() {
     try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        let newDb = [];
+        let list = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = processQuant({ pair: key, ...data.tickers[key] });
-                if (r) newDb.push(r);
+                const r = eliteAnalysis({ pair: key, ...data.tickers[key] });
+                if (r) list.push(r);
             }
         }
-        db = newDb;
+        db = list;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Multi-TF Synced: ${new Date().toLocaleTimeString()}`;
-    } catch (e) { console.error("API Error"); }
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Elite Engine Sync: ${new Date().toLocaleTimeString()}`;
+    } catch (e) { console.error("Sync Error"); }
 }
 
 function render() {
@@ -131,18 +135,18 @@ function render() {
     }).sort((a,b) => b.sc - a.sc);
 
     el.innerHTML = filtered.map(x => `
-        <div class="card p-4 border-l-4 ${x.lb === 'STRONG-BUY' ? 'border-green-400' : x.lb === 'WARNING' ? 'border-red-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
+        <div class="card p-5 border-l-4 ${x.lb === 'STRONG-BUY' ? 'border-emerald-400' : x.lb === 'WARNING' ? 'border-red-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
             <div class="flex justify-between items-center">
                 <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[14px] font-black text-white tracking-tighter">${x.s}</span>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[16px] font-black text-white tracking-tighter">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
                     </div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase">PIR: ${x.pir}% | CAP: ${x.cap}</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">PIR ${x.pir}% · ${x.cap} CAP · VOL Rp${Math.round(x.vol/1e6)}M</div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[13px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] font-bold ${parseFloat(x.spread) > 1.5 ? 'text-red-400' : 'text-slate-600'}">SPR: ${x.spread}%</p>
+                    <p class="text-[15px] font-black text-white tracking-tight">Rp ${x.p.toLocaleString('id-ID')}</p>
+                    <p class="text-[9px] font-bold ${parseFloat(x.spread) > 1.2 ? 'text-red-400' : 'text-emerald-500'} mt-1">SPREAD ${x.spread}%</p>
                 </div>
             </div>
         </div>
@@ -154,21 +158,20 @@ function openModal(symbol) {
     if (!x) return;
     document.getElementById('modal').classList.remove('hidden');
     document.getElementById('m-sym').innerText = x.s;
-    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="mb-1">${l}</div>`).join('') + 
-        `<div class="text-slate-500 mt-2 italic text-[8px]">ANALISIS HARIAN, 1 JAM, & 15 MENIT TERKONFIRMASI.</div>`;
-    
-    document.getElementById('m-levels').innerHTML = `
-        <div class="text-green-400">TP: Rp ${Math.round(x.p * 1.04).toLocaleString('id-ID')}</div>
-        <div class="text-red-400">SL: Rp ${Math.round(x.p * 0.96).toLocaleString('id-ID')}</div>
-        <div class="text-slate-500 text-[8px]">R:R RATIO 1:1.5</div>
-    `;
+    document.getElementById('m-status-box').innerHTML = `<span class="badge b-${x.lb}">${x.lb}</span>`;
+    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="${l.includes('🛑') ? 'text-red-400' : 'text-emerald-400'}">${l}</div>`).join('');
 
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '60', theme: 'dark', container_id: 'tv-box',
+        interval: '15', theme: 'dark', container_id: 'tv-box',
         style: '1', locale: 'id', hide_side_toolbar: true,
-        studies: ['RSI@tv-basicstudies', 'MASimple@tv-basicstudies', 'VWAP@tv-basicstudies']
+        studies: [
+            'RSI@tv-basicstudies', 
+            'StochasticRSI@tv-basicstudies', 
+            'ChaikinMoneyFlow@tv-basicstudies',
+            'MASimple@tv-basicstudies' // Mewakili EMA 20/50 di chart
+        ]
     });
 }
 
