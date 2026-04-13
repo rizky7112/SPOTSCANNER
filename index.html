@@ -3,77 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V4.9 QUANTUM PRO</title>
+    <title>RZKY SPOT | V5.0 BROAD-SCAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; background: #010204; color: #e2e8f0; margin: 0; }
-        .card { background: #0a0d17; border: 1px solid #1e293b; border-radius: 16px; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card:hover { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
-        .btn-f { background: #1e293b; color: #94a3b8; padding: 10px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; border: 1px solid transparent; }
-        .btn-f.active { background: #3b82f6; color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-        .b-STRONG-BUY { background: #10b981; color: #064e3b; }
-        .b-BREAKOUT   { background: #3b82f6; color: #eff6ff; }
-        .b-ACCUM      { background: #f59e0b; color: #451a03; }
-        .b-WARNING    { background: #ef4444; color: #fff; }
-        .live-indicator { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } }
+        body { font-family: 'JetBrains Mono', monospace; background: #02040a; color: #e2e8f0; margin: 0; }
+        .card { background: #0d111d; border: 1px solid #1e293b; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .card:active { transform: scale(0.98); }
+        .btn-f { background: #1e293b; color: #94a3b8; padding: 10px 14px; border-radius: 8px; font-size: 9px; font-weight: 800; border: 1px solid transparent; }
+        .btn-f.active { background: #fff; color: #000; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+        .b-BUY      { background: #10b981; color: #fff; }
+        .b-AKUM     { background: #3b82f6; color: #fff; }
+        .b-NETRAL   { background: #475569; color: #fff; }
+        .b-WARNING  { background: #ef4444; color: #fff; }
+        .live-indicator { width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-24">
 
-<header class="sticky top-0 z-50 bg-[#010204]/80 border-b border-slate-800/60 px-6 py-5 backdrop-blur-xl">
-    <div class="max-w-xl mx-auto flex justify-between items-center mb-5">
+<header class="sticky top-0 z-50 bg-[#02040a]/90 border-b border-slate-800 px-4 pt-5 pb-4 backdrop-blur-md">
+    <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
         <div>
-            <h1 class="text-xl font-black text-white tracking-tighter italic">
-                RZKY <span class="text-blue-500">QUANTUM</span> <span class="text-slate-600 text-[10px] not-italic ml-1">V4.9 PRO</span>
+            <h1 class="text-lg font-black text-white italic tracking-tighter uppercase">
+                RZKY <span class="text-blue-500">SPOT</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V5.0</span>
             </h1>
-            <p id="scan-info" class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">
-                <span class="live-indicator mr-2"></span> OBV & CMF Analyzers Ready
+            <p id="scan-info" class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                <span class="live-indicator mr-1"></span> Multi-Indicator Scanner Active
             </p>
         </div>
-        <select id="cap-filter" onchange="render()" class="bg-[#0f172a] text-[10px] font-bold text-slate-400 border border-slate-800 rounded-xl px-3 py-2 outline-none">
-            <option value="ALL">ALL MARKET</option>
+        <select id="cap-filter" onchange="render()" class="bg-[#0d111d] text-[9px] font-bold text-slate-400 border border-slate-800 rounded-lg px-2 py-1.5 outline-none">
+            <option value="ALL">ALL CAP</option>
             <option value="BIG">BIG CAP</option>
             <option value="MID">MID CAP</option>
         </select>
     </div>
-    <div class="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar">
-        <button onclick="setFil('ALL',this)" class="btn-f active">ALL SIGNALS</button>
-        <button onclick="setFil('STRONG-BUY',this)" class="btn-f">STRONG BUY</button>
-        <button onclick="setFil('BREAKOUT',this)" class="btn-f">BREAKOUT</button>
-        <button onclick="setFil('ACCUM',this)" class="btn-f">ACCUMULATION</button>
+    <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar">
+        <button onclick="setFil('ALL',this)"  class="btn-f active">ALL</button>
+        <button onclick="setFil('BUY',this)"  class="btn-f text-green-400">BUY</button>
+        <button onclick="setFil('AKUM',this)" class="btn-f text-blue-400">AKUMULASI</button>
+        <button onclick="setFil('NETRAL',this)" class="btn-f text-slate-400">NETRAL</button>
+        <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">WARNING</button>
     </div>
 </header>
 
-<main id="konten" class="px-6 py-6 max-w-xl mx-auto space-y-4"></main>
+<main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-3"></main>
 
-<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#010204]">
-    <div class="px-6 py-5 border-b border-slate-800/60 flex justify-between items-center">
-        <div>
-            <h2 id="m-sym" class="font-black text-white text-2xl tracking-tighter">---</h2>
-            <div id="m-status-box" class="mt-1"></div>
-        </div>
-        <button onclick="closeModal()" class="text-4xl text-slate-500 hover:text-white transition-all">&times;</button>
+<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#02040a]">
+    <div class="px-5 py-4 border-b border-slate-800 flex justify-between items-center bg-[#0d111d]">
+        <h2 id="m-sym" class="font-black text-white text-xl uppercase tracking-tighter">---</h2>
+        <button onclick="closeModal()" class="text-3xl text-slate-500 hover:text-white">&times;</button>
     </div>
-    <div class="flex-1 overflow-y-auto p-6 space-y-6 max-w-xl mx-auto w-full">
-        <div id="tv-box" class="w-full h-[380px] rounded-2xl border border-slate-800 overflow-hidden bg-black shadow-2xl"></div>
-        <div class="grid grid-cols-2 gap-3">
-            <div class="p-5 bg-[#0a0d17] rounded-2xl border border-slate-800/60">
-                <p class="text-[10px] text-slate-500 font-black uppercase mb-3">Target Profit</p>
-                <div id="m-tp" class="text-xl font-black text-emerald-400">---</div>
-                <p class="text-[9px] text-slate-600 mt-1 font-bold italic">Potential: 5% - 12%</p>
-            </div>
-            <div class="p-5 bg-[#0a0d17] rounded-2xl border border-slate-800/60 text-right">
-                <p class="text-[10px] text-slate-500 font-black uppercase mb-3">Stop Loss</p>
-                <div id="m-sl" class="text-xl font-black text-red-500">---</div>
-                <p class="text-[9px] text-slate-600 mt-1 font-bold italic">Risk: 3% Max</p>
-            </div>
-        </div>
-        <div id="m-audit" class="p-5 bg-[#0f172a] rounded-2xl border border-blue-900/30 space-y-2 text-[11px] font-bold uppercase"></div>
+    <div class="flex-1 overflow-y-auto p-5 space-y-4 max-w-xl mx-auto w-full">
+        <div id="tv-box" class="w-full h-[340px] rounded-xl border border-slate-800 bg-black"></div>
+        <div id="m-audit" class="p-4 bg-[#0d111d] rounded-xl border border-slate-800 space-y-2 text-[11px] font-bold uppercase"></div>
     </div>
 </div>
 
@@ -81,38 +67,32 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function quantumAnalysis(t) {
+function advancedScan(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
     
     const pir = ((last - lo) / (hi - lo)) * 100;
     const spread = ((ask - bid) / bid) * 100;
-    const range = ((hi - lo) / lo) * 100;
-    const cap = vol >= 15e9 ? 'BIG' : vol >= 4e9 ? 'MID' : 'LOW';
+    const cap = vol >= 10e9 ? 'BIG' : vol >= 2e9 ? 'MID' : 'LOW';
 
-    let status = 'NEUTRAL', score = 0, logs = [];
+    let status = 'NETRAL', score = 0, logs = [];
 
-    // QUANTUM LOGIC (Higher Profit Potential)
-    const isAccum = pir < 20 && spread < 0.5 && vol > 2e9;
-    const isBreakout = pir > 80 && pir < 92 && range > 8 && vol > 5e9;
-
-    if (isAccum) {
-        status = 'STRONG-BUY'; score = 95 - pir;
-        logs.push("💎 QUANT: WHALE ACCUMULATION ZONE");
-        logs.push("💎 QUANT: OPTIMAL R:R RATIO (1:3)");
-    } else if (isBreakout) {
-        status = 'BREAKOUT'; score = 90;
-        logs.push("🚀 QUANT: MOMENTUM BREAKOUT DETECTED");
-        logs.push("🚀 QUANT: HIGH VOLATILITY PROFIT RUN");
-    } else if (pir < 35 && spread < 0.8) {
-        status = 'ACCUM'; score = 50;
-        logs.push("🔍 QUANT: BUILDING BASE SUPPORT");
-    } else if (pir > 95 || spread > 2.0) {
+    // Logic Sinyal Broad
+    if (pir > 92 || spread > 2.2) {
         status = 'WARNING'; score = 100;
-        logs.push("🛑 QUANT: EXTREME OVERBOUGHT - AVOID");
+        logs.push(pir > 92 ? "🛑 AREA PUCUK (RESIKO DUMP)" : "🛑 SPREAD LEBAR (RESIKO SLIPPAGE)");
+    } else if (pir < 25 && spread < 0.7 && vol > 1e9) {
+        status = 'BUY'; score = 90 - pir;
+        logs.push("✅ KONFIRMASI BUY: HARGA MURAH + LIKUID");
+    } else if (pir >= 25 && pir < 50 && vol > 3e9) {
+        status = 'AKUM'; score = 70;
+        logs.push("🔵 POTENSI BREAKOUT: AKUMULASI VOL BESAR");
+    } else {
+        status = 'NETRAL'; score = 10;
+        logs.push("⚪ MARKET NETRAL: TUNGGU MOMENTUM");
     }
 
-    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, sc: score, pir: pir.toFixed(1), spread: spread.toFixed(2), cap, logs, vol, range: range.toFixed(1) };
+    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, sc: score, pir: pir.toFixed(1), vol, cap, spread: spread.toFixed(2), logs };
 }
 
 async function fetchData() {
@@ -122,13 +102,13 @@ async function fetchData() {
         let list = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = quantumAnalysis({ pair: key, ...data.tickers[key] });
+                const r = advancedScan({ pair: key, ...data.tickers[key] });
                 if (r) list.push(r);
             }
         }
         db = list;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Quantum Sync: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Monitoring Market: ${new Date().toLocaleTimeString()}`;
     } catch (e) { console.error("Sync Error"); }
 }
 
@@ -137,28 +117,24 @@ function render() {
     const capFil = document.getElementById('cap-filter').value;
     
     let filtered = db.filter(x => {
-        const mCat = currentFil === 'ALL' ? x.lb !== 'NEUTRAL' : x.lb === currentFil;
+        const mCat = currentFil === 'ALL' ? true : x.lb === currentFil;
         const mCap = capFil === 'ALL' ? true : x.cap === capFil;
         return mCat && mCap;
     }).sort((a,b) => b.sc - a.sc);
 
     el.innerHTML = filtered.map(x => `
-        <div class="card p-6 border-l-8 ${x.lb === 'STRONG-BUY' ? 'border-emerald-500' : x.lb === 'BREAKOUT' ? 'border-blue-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
+        <div class="card p-4 border-l-4 ${x.lb === 'BUY' ? 'border-green-500' : x.lb === 'AKUM' ? 'border-blue-500' : 'border-slate-800'}" onclick="openModal('${x.s}')">
             <div class="flex justify-between items-center">
                 <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-lg font-black text-white tracking-tighter">${x.s}</span>
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-[15px] font-black text-white">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
                     </div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                        PIR ${x.pir}% · ${x.cap} CAP · VOL Rp${Math.round(x.vol/1e9)}Milyar
-                    </div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-tight">PIR ${x.pir}% · ${x.cap} CAP · VOL Rp${Math.round(x.vol/1e9)}M</div>
                 </div>
                 <div class="text-right">
-                    <p class="text-lg font-black text-white tracking-tighter">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[10px] font-bold ${parseFloat(x.spread) > 1.0 ? 'text-red-400' : 'text-emerald-400'} mt-1">
-                        SPREAD ${x.spread}%
-                    </p>
+                    <p class="text-[14px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
+                    <p class="text-[8px] font-bold text-slate-600">SPR ${x.spread}%</p>
                 </div>
             </div>
         </div>
@@ -170,30 +146,15 @@ function openModal(symbol) {
     if (!x) return;
     document.getElementById('modal').classList.remove('hidden');
     document.getElementById('m-sym').innerText = x.s;
-    document.getElementById('m-status-box').innerHTML = `<span class="badge b-${x.lb}">${x.lb}</span>`;
-    
-    // Logic TP/SL dinamis
-    const tpPrice = x.lb === 'BREAKOUT' ? x.p * 1.12 : x.p * 1.07;
-    const slPrice = x.p * 0.96;
-
-    document.getElementById('m-tp').innerText = `Rp ${Math.round(tpPrice).toLocaleString('id-ID')}`;
-    document.getElementById('m-sl').innerText = `Rp ${Math.round(slPrice).toLocaleString('id-ID')}`;
-    
-    document.getElementById('m-audit').innerHTML = x.logs.map(l => 
-        `<div class="${l.includes('🛑') ? 'text-red-400' : 'text-blue-400'}">● ${l}</div>`
-    ).join('') + `<div class="mt-2 text-slate-500 text-[9px] border-t border-slate-800 pt-2 italic">VALIDATED BY EMA 20/50, STOCH-RSI, & CMF FLOW.</div>`;
+    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div>${l}</div>`).join('') + 
+        `<div class="text-slate-600 mt-2 text-[9px] lowercase italic border-t border-slate-800 pt-2">Indikator EMA, RSI, CMF, & OBV terintegrasi pada chart TradingView.</div>`;
 
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '30', theme: 'dark', container_id: 'tv-box',
-        style: '1', locale: 'id', hide_side_toolbar: false,
-        studies: [
-            'RSI@tv-basicstudies', 
-            'StochasticRSI@tv-basicstudies', 
-            'ChaikinMoneyFlow@tv-basicstudies',
-            'MASimple@tv-basicstudies' 
-        ]
+        interval: '60', theme: 'dark', container_id: 'tv-box',
+        style: '1', locale: 'id', hide_side_toolbar: true,
+        studies: ['RSI@tv-basicstudies', 'ChaikinMoneyFlow@tv-basicstudies', 'OnBalanceVolume@tv-basicstudies', 'MASimple@tv-basicstudies']
     });
 }
 
