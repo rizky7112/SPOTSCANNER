@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY SPOT | V4.3 ULTRA</title>
+    <title>RZKY SPOT | V4.4 ANTI-TRAP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -24,6 +24,7 @@
         .b-WATCH    { background:#facc15; color:#3d2000; }
         .b-BREAKOUT { background:#38bdf8; color:#071929; }
         .b-WARNING  { background:#ef4444; color:#fff; }
+        .b-NEUTRAL  { background:#334155; color:#94a3b8; }
 
         .bar-track { background:#1e293b; border-radius:3px; height:4px; overflow:hidden; }
         .bar-fill  { height:100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
@@ -39,10 +40,10 @@
     <div class="max-w-xl mx-auto flex justify-between items-center mb-3">
         <div>
             <h1 class="text-[16px] font-black italic text-white uppercase tracking-tighter">
-                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.3</span>
+                RZKY <span class="text-cyan-400">SPOT</span> <span class="text-slate-700 text-[8px] not-italic ml-1">V4.4</span>
             </h1>
             <p id="scan-info" class="text-[8px] text-slate-500 uppercase tracking-widest mt-0.5">
-                <span class="live-indicator mr-1"></span> Mengambil Data Terkini...
+                <span class="live-indicator mr-1"></span> Menghitung Risk/Reward...
             </p>
         </div>
         <div class="flex gap-1.5">
@@ -61,7 +62,7 @@
     </div>
     
     <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-        <button onclick="setFil('ALL',this)"      class="btn-f active">ALL</button>
+        <button onclick="setFil('ALL',this)"      class="btn-f active">ALL MARKET</button>
         <button onclick="setFil('BUY',this)"      class="btn-f text-green-400">BUY</button>
         <button onclick="setFil('WATCH',this)"    class="btn-f text-yellow-400">WATCH</button>
         <button onclick="setFil('BREAKOUT',this)" class="btn-f text-cyan-400">BREAKOUT</button>
@@ -88,21 +89,21 @@
         
         <div class="grid grid-cols-3 gap-2">
             <div class="ind-box text-center">
-                <p class="text-[7px] text-slate-500 uppercase font-bold mb-1">CURRENT</p>
+                <p class="text-[7px] text-slate-500 uppercase font-bold mb-1">PRICE</p>
                 <p id="m-entry" class="text-[11px] font-black text-white"></p>
             </div>
             <div class="ind-box text-center border-green-900/20">
-                <p class="text-[7px] text-green-600 uppercase font-bold mb-1">TARGET TP</p>
+                <p class="text-[7px] text-green-600 uppercase font-bold mb-1">SAFE TP (3%)</p>
                 <p id="m-tp" class="text-[11px] font-black text-green-400"></p>
             </div>
             <div class="ind-box text-center border-red-900/20">
-                <p class="text-[7px] text-red-600 uppercase font-bold mb-1">STOP LOSS</p>
+                <p class="text-[7px] text-red-600 uppercase font-bold mb-1">CUT LOSS</p>
                 <p id="m-sl" class="text-[11px] font-black text-red-400"></p>
             </div>
         </div>
 
         <div class="ind-box">
-            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2.5">Real-time Analysis Audit</p>
+            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2.5">Anti-FOMO Audit Report</p>
             <div id="m-audit" class="space-y-1.5 text-[10px] font-bold uppercase"></div>
         </div>
     </div>
@@ -124,26 +125,19 @@ function analisis(pair, t) {
     const cap = vol >= 10e9 ? 'BIG' : vol >= 2e9 ? 'MID' : 'LOW';
     const type = rangePct > 8 ? 'SCALPING' : 'SWING';
 
-    let lb = 'NORMAL', sc = 0, msg = [];
+    let lb = 'NEUTRAL', sc = 10, msg = [];
 
-    // Logika Sinyal
-    if (spread > 2.5 || pir > 95) { 
-        lb = 'WARNING'; 
-        sc = 100; 
-        if(spread > 2.5) msg.push("Spread Terlalu Lebar");
-        if(pir > 95) msg.push("Harga Area Pucuk (Overbought)");
-    } 
-    else if (pir < 22 && spread < 1) { 
-        lb = 'BUY'; 
-        sc = 90 - pir; 
-    }
-    else if (pir > 85 && rangePct > 6) { 
-        lb = 'BREAKOUT'; 
-        sc = 85; 
-    }
-    else if (pir < 40) { 
-        lb = 'WATCH'; 
-        sc = 40; 
+    // Validasi Anti-Trap & FOMO
+    if (spread > 2.0) { 
+        lb = 'WARNING'; sc = 100; msg.push("Spread Tinggi (Resiko Low Liquidity)");
+    } else if (pir > 92) {
+        lb = 'WARNING'; sc = 95; msg.push("Area Overbought (Resiko Pucuk)");
+    } else if (pir < 20 && spread < 0.8 && vol > 5e8) { 
+        lb = 'BUY'; sc = 90 - pir; 
+    } else if (pir > 80 && pir < 90 && rangePct > 7) { 
+        lb = 'BREAKOUT'; sc = 85; 
+    } else if (pir < 40) { 
+        lb = 'WATCH'; sc = 50; 
     }
 
     return {
@@ -167,8 +161,8 @@ async function fetchData() {
         }
         db = newDb;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Live Refresh: ${new Date().toLocaleTimeString()}`;
-    } catch (e) { console.error("Sync Error"); }
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-1"></span> Monitoring: ${new Date().toLocaleTimeString()}`;
+    } catch (e) { console.error("API Offline"); }
 }
 
 function render() {
@@ -176,21 +170,20 @@ function render() {
     const capFil = document.getElementById('cap-filter').value;
     const typeFil = document.getElementById('type-filter').value;
 
-    let rows = db.filter(x => {
-        const mCat = currentFil === 'ALL' ? x.lb !== 'NORMAL' : x.lb === currentFil;
+    let filtered = db.filter(x => {
+        const mCat = currentFil === 'ALL' ? true : x.lb === currentFil;
         const mCap = capFil === 'ALL' ? true : x.cap === capFil;
         const mTyp = typeFil === 'ALL' ? true : x.type === typeFil;
         return mCat && mCap && mTyp;
     }).sort((a,b) => b.sc - a.sc);
 
-    if (!rows.length) {
-        el.innerHTML = `<div class="text-center py-20 text-slate-700 text-[10px] uppercase font-bold tracking-[0.2em]">Sinyal Tidak Ditemukan</div>`;
-        return;
-    }
-
-    el.innerHTML = rows.map(x => `
-        <div class="card p-4 border-l-4 ${x.lb === 'BUY' ? 'border-green-400' : x.lb === 'WARNING' ? 'border-red-500' : x.lb === 'BREAKOUT' ? 'border-cyan-400' : 'border-slate-800'}" 
-             onclick="openModal('${x.s}')">
+    el.innerHTML = filtered.map(x => `
+        <div class="card p-4 border-l-4 ${
+            x.lb === 'BUY' ? 'border-green-400' : 
+            x.lb === 'WARNING' ? 'border-red-500' : 
+            x.lb === 'BREAKOUT' ? 'border-cyan-400' : 
+            x.lb === 'WATCH' ? 'border-yellow-400' : 'border-slate-800'
+        }" onclick="openModal('${x.s}')">
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center gap-2 mb-1.5">
@@ -204,7 +197,7 @@ function render() {
                 </div>
                 <div class="text-right">
                     <p class="text-[13px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] ${parseFloat(x.spread) > 2 ? 'text-red-500' : 'text-slate-600'} font-bold mt-1">SPR ${x.spread}%</p>
+                    <p class="text-[8px] ${parseFloat(x.spread) > 1.5 ? 'text-red-400' : 'text-slate-600'} font-bold mt-1">SPR ${x.spread}%</p>
                 </div>
             </div>
             <div class="bar-track mt-3">
@@ -222,24 +215,24 @@ function openModal(symbol) {
     document.getElementById('m-sym').innerText = x.s;
     document.getElementById('m-badge').className = 'badge b-' + x.lb;
     document.getElementById('m-badge').innerText = x.lb;
-    document.getElementById('m-type-lbl').innerText = `${x.type} · ${x.cap} CAP`;
+    document.getElementById('m-type-lbl').innerText = `${x.type} ANALYTICS · ${x.cap} CAP`;
     
     document.getElementById('m-entry').innerText = 'Rp ' + x.p.toLocaleString('id-ID');
-    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.p * 1.05).toLocaleString('id-ID');
-    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.p * 0.97).toLocaleString('id-ID');
+    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.p * 1.03).toLocaleString('id-ID');
+    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.p * 0.96).toLocaleString('id-ID');
 
     let auditHtml = [
-        `<div class="text-cyan-500">✔ Posisi Harga: ${x.pir}% dari Low 24 Jam</div>`,
-        `<div class="text-cyan-500">✔ Volatilitas: ${x.rangePct}% (Range Harian)</div>`,
-        `<div class="text-cyan-500">✔ Volume: Rp ${Math.round(x.vol/1e6)}jt</div>`
+        `<div class="text-slate-400"># PIR: ${x.pir}% (Position in 24h Range)</div>`,
+        `<div class="text-slate-400"># VOL: Rp ${Math.round(x.vol/1e6)}jt (24h Volume)</div>`
     ];
 
     if (x.lb === 'WARNING') {
-        x.warningMsg.forEach(m => {
-            auditHtml.push(`<div class="text-red-500">❌ ALERT: ${m}</div>`);
-        });
+        x.warningMsg.forEach(m => auditHtml.push(`<div class="text-red-500">⚠ ${m}</div>`));
+    } else if (x.lb === 'BUY') {
+        auditHtml.push(`<div class="text-green-500">✔ LOW RISK ENTRY (Bottom Area)</div>`);
+        auditHtml.push(`<div class="text-green-500">✔ SPREAD AMAN: ${x.spread}%</div>`);
     } else {
-        auditHtml.push(`<div class="${x.spread > 1.5 ? 'text-yellow-500' : 'text-green-500'}">✔ Spread: ${x.spread}% ${x.spread > 1.5 ? '(Hati-hati)' : '(Sangat Bagus)'}</div>`);
+        auditHtml.push(`<div class="text-cyan-500">ⓘ Menunggu Konfirmasi Volume...</div>`);
     }
 
     document.getElementById('m-audit').innerHTML = auditHtml.join('');
@@ -247,7 +240,7 @@ function openModal(symbol) {
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '30', theme: 'dark', container_id: 'tv-box',
+        interval: '15', theme: 'dark', container_id: 'tv-box',
         style: '1', locale: 'id', toolbar_bg: '#0c0f18', hide_side_toolbar: true,
         studies: ['RSI@tv-basicstudies', 'MASimple@tv-basicstudies']
     });
