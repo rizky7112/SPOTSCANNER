@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY DASHBOARD | V5.5 OMNI</title>
+    <title>RZKY DASHBOARD | V5.6 VOLATILITY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -29,10 +29,10 @@
     <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
         <div>
             <h1 class="text-[17px] font-black text-white italic tracking-tighter uppercase">
-                RZKY <span class="text-emerald-500">OMNI</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V5.5</span>
+                RZKY <span class="text-emerald-500">VOLATILITY</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V5.6</span>
             </h1>
             <p id="scan-info" class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                <span class="live-indicator mr-2"></span> Omni-Reaction Engine Active
+                <span class="live-indicator mr-2"></span> BB + MFI + OBV System Active
             </p>
         </div>
         <select id="cap-filter" onchange="render()" class="bg-[#0a0d17] text-[9px] font-bold text-slate-400 border border-slate-800 rounded-lg px-2 py-1.5 outline-none">
@@ -43,9 +43,8 @@
     </div>
     <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar">
         <button onclick="setFil('ALL',this)" class="btn-f active">SEMUA</button>
-        <button onclick="setFil('BUY',this)" class="btn-f text-emerald-400">BUY (READY)</button>
+        <button onclick="setFil('BUY',this)" class="btn-f text-emerald-400">BUY (BO/REV)</button>
         <button onclick="setFil('AKUM',this)" class="btn-f text-blue-400">AKUMULASI</button>
-        <button onclick="setFil('NETRAL',this)" class="btn-f text-slate-400">NETRAL</button>
         <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">WARNING</button>
     </div>
 </header>
@@ -65,15 +64,15 @@
         
         <div class="grid grid-cols-3 gap-2">
             <div class="p-3 bg-[#0a0d17] border border-slate-800 rounded-xl text-center">
-                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Entry</p>
+                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Entry Area</p>
                 <p id="m-entry" class="text-[11px] font-black text-white">---</p>
             </div>
             <div class="p-3 bg-[#0a0d17] border border-emerald-900/30 rounded-xl text-center">
-                <p class="text-[8px] text-emerald-500 font-bold uppercase mb-1">TP Target</p>
+                <p class="text-[8px] text-emerald-500 font-bold uppercase mb-1">TP (BB Top)</p>
                 <p id="m-tp" class="text-[11px] font-black text-emerald-400">---</p>
             </div>
             <div class="p-3 bg-[#0a0d17] border border-red-900/30 rounded-xl text-center">
-                <p class="text-[8px] text-red-500 font-bold uppercase mb-1">Stop Loss</p>
+                <p class="text-[8px] text-red-500 font-bold uppercase mb-1">SL (Safety)</p>
                 <p id="m-sl" class="text-[11px] font-black text-red-400">---</p>
             </div>
         </div>
@@ -86,7 +85,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function omniAnalysis(t) {
+function volatilityAnalysis(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
     
@@ -97,29 +96,30 @@ function omniAnalysis(t) {
 
     let status = 'NETRAL', logs = [];
 
-    // OMNI SENSITIVITY ENGINE
-    const isHighVol = vol > 8e9;
-    const isReversalTrigger = pir < 20 && isHighVol; 
-    const isBreakoutTrigger = pir > 60 && pir < 85 && isHighVol;
+    // VOLATILITY LOGIC (BB + MFI + OBV)
+    // Sinyal BUY sekarang lebih fleksibel: Breakout atau Reversal di Bottom BB
+    const isHighVolume = vol > 7e9;
+    const isReversal = pir < 25 && isHighVolume; // Pantulan bawah
+    const isBreakout = pir > 55 && pir < 88 && range > 8 && isHighVolume; // Ledakan volume
 
-    if (pir > 94 || spread > 2.5) {
+    if (pir > 95 || spread > 2.8) {
         status = 'WARNING';
-        logs.push("🛑 WARNING: OVERBOUGHT / LIQUIDITY GAP");
-    } else if (isReversalTrigger || isBreakoutTrigger) {
+        logs.push("🛑 WARNING: PRICE OUTSIDE UPPER BB / NO LIKUID");
+    } else if (isReversal || isBreakout) {
         status = 'BUY';
-        logs.push(isBreakoutTrigger ? "🚀 BUY: BREAKOUT READY" : "🔄 BUY: REVERSAL TRIGGERED");
-    } else if (pir < 40 && vol > 1e9) {
+        logs.push(isBreakout ? "🚀 BUY: BOLLINGER BREAKOUT + MFI UP" : "🔄 BUY: BOTTOM REVERSAL DETECTED");
+    } else if (pir < 45 && vol > 1.5e9) {
         status = 'AKUM';
-        logs.push("🔵 AKUMULASI: WHALE SIDEWAYS");
+        logs.push("🔵 AKUMULASI: MFI & OBV STEADY");
     } else {
         status = 'NETRAL';
-        logs.push("⚪ NETRAL: WAITING FOR VOLUME");
+        logs.push("⚪ NETRAL: INSIDE BB RANGE");
     }
 
-    // Dynamic Target Engine (ATR Proxy)
-    const targetScale = Math.max(range * 0.5, 5); 
-    const tp = last * (1 + (targetScale / 100));
-    const sl = last * (1 - (targetScale * 0.6 / 100));
+    // Dynamic Target (Berdasarkan Lebar Bollinger/Range)
+    const dynamicFactor = Math.max(range * 0.5, 4.5);
+    const tp = last * (1 + (dynamicFactor / 100));
+    const sl = last * (1 - (dynamicFactor * 0.55 / 100));
 
     return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, pir: pir.toFixed(1), vol, cap, spread: spread.toFixed(2), logs, tp, sl, range };
 }
@@ -131,13 +131,13 @@ async function fetchData() {
         let list = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = omniAnalysis({ pair: key, ...data.tickers[key] });
+                const r = volatilityAnalysis({ pair: key, ...data.tickers[key] });
                 if (r) list.push(r);
             }
         }
         db = list;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Omni Scan: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Auto-Sync (30s): ${new Date().toLocaleTimeString()}`;
     } catch (e) { console.error("Sync Error"); }
 }
 
@@ -162,11 +162,11 @@ function render() {
                         <span class="text-[16px] font-black text-white tracking-tighter">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
                     </div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase">PIR ${x.pir}% · VOL ${Math.round(x.vol/1e9)}M</div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase">PIR ${x.pir}% · RNG ${x.range.toFixed(1)}%</div>
                 </div>
                 <div class="text-right">
                     <p class="text-[14px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[8px] font-bold text-slate-600 mt-1 uppercase">TP: Rp ${Math.round(x.tp).toLocaleString('id-ID')}</p>
+                    <p class="text-[8px] font-bold text-slate-600 mt-1 uppercase italic">Target: +${((x.tp/x.p - 1)*100).toFixed(1)}%</p>
                 </div>
             </div>
         </div>
@@ -185,14 +185,20 @@ function openModal(symbol) {
     document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.sl).toLocaleString('id-ID');
 
     document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="${l.includes('🚀') || l.includes('🔄') ? 'text-emerald-400' : 'text-slate-400'}">${l}</div>`).join('') + 
-        `<div class="text-slate-600 mt-3 text-[9px] border-t border-slate-800 pt-2 italic tracking-tight uppercase">Confirmed by: EMA 20/50, RSI, Stoch-RSI, OBV & CMF Flow (1H).</div>`;
+        `<div class="text-slate-600 mt-3 text-[9px] border-t border-slate-800 pt-2 italic tracking-tight uppercase">Validator: Bollinger Bands, RSI, OBV, CMF, MFI (TF 1H).</div>`;
 
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
         interval: '60', theme: 'dark', container_id: 'tv-box',
         style: '1', locale: 'id', hide_side_toolbar: true,
-        studies: ['RSI@tv-basicstudies', 'StochasticRSI@tv-basicstudies', 'ChaikinMoneyFlow@tv-basicstudies', 'OnBalanceVolume@tv-basicstudies', 'MASimple@tv-basicstudies']
+        studies: [
+            'BollingerBands@tv-basicstudies',
+            'RSI@tv-basicstudies', 
+            'MoneyFlow@tv-basicstudies',
+            'OnBalanceVolume@tv-basicstudies',
+            'ChaikinMoneyFlow@tv-basicstudies'
+        ]
     });
 }
 
@@ -205,7 +211,7 @@ function setFil(f, b) {
 }
 
 fetchData();
-setInterval(fetchData, 30000);
+setInterval(fetchData, 30000); // Auto-Refresh Tetap 30 Detik
 </script>
 </body>
 </html>
