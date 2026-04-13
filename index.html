@@ -3,75 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RZKY DASHBOARD | V6.1 MAX-POTENTIAL</title>
+    <title>RZKY DASHBOARD | V6.6 STABLE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; background: #010204; color: #e2e8f0; margin: 0; }
-        .card { background: #0a0d17; border: 1px solid #1e293b; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-        .card:active { transform: scale(0.97); }
-        .btn-f { background: #161d2f; color: #64748b; padding: 10px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; border: 1px solid #1e293b; white-space: nowrap; }
-        .btn-f.active { background: #10b981; color: #fff; border-color: #10b981; }
-        .badge { padding: 3px 8px; border-radius: 5px; font-size: 9px; font-weight: 900; }
-        .b-BUY      { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-        .b-NETRAL   { background: #334155; color: #cbd5e1; }
-        .b-WARNING  { background: #ef4444; color: #fff; }
-        .live-indicator { width: 7px; height: 7px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0b0f19; color: #f1f5f9; margin: 0; }
+        .card { background: #111827; border: 1px solid #1f2937; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .card:hover { border-color: #374151; }
+        .btn-f { background: #1f2937; color: #9ca3af; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid #374151; }
+        .btn-f.active { background: #059669; color: #fff; border-color: #059669; }
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .b-BUY      { background: #064e3b; color: #34d399; }
+        .b-NETRAL   { background: #374151; color: #d1d5db; }
+        .b-WARNING  { background: #7f1d1d; color: #f87171; }
+        .reason-tag { font-size: 9px; font-weight: 800; color: #6b7280; text-transform: uppercase; margin-top: 4px; display: block; }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-20">
 
-<header class="sticky top-0 z-50 bg-[#010204]/90 border-b border-emerald-900/20 px-4 pt-5 pb-4 backdrop-blur-md">
-    <div class="max-w-xl mx-auto flex justify-between items-center mb-4">
+<header class="sticky top-0 z-50 bg-[#0b0f19]/95 border-b border-gray-800 px-4 py-5 backdrop-blur-md">
+    <div class="max-w-xl mx-auto flex justify-between items-center mb-5">
         <div>
-            <h1 class="text-[17px] font-black text-white italic tracking-tighter uppercase">
-                RZKY <span class="text-emerald-500">MAX-PROFIT</span> <span class="text-slate-700 text-[9px] not-italic ml-1">V6.1</span>
-            </h1>
-            <p id="scan-info" class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                <span class="live-indicator mr-2"></span> High-Vol Engine Active
-            </p>
+            <h1 class="text-lg font-black tracking-tight text-white uppercase italic">RZKY <span class="text-emerald-500">STABLE V6.6</span></h1>
+            <p id="scan-info" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Filter: Anti-Noise Active</p>
         </div>
     </div>
-    <div class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto no-scrollbar">
+    <div class="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar">
         <button onclick="setFil('ALL',this)" class="btn-f active">DASHBOARD</button>
-        <button onclick="setFil('BUY',this)" class="btn-f text-emerald-400 font-black italic">SUPER BUY</button>
-        <button onclick="setFil('NETRAL',this)" class="btn-f text-slate-400">NETRAL</button>
-        <button onclick="setFil('WARNING',this)" class="btn-f text-red-500">DANGER</button>
+        <button onclick="setFil('BUY',this)" class="btn-f">BUY SIGNALS</button>
+        <button onclick="setFil('WARNING',this)" class="btn-f">DANGER ZONE</button>
     </div>
 </header>
 
 <main id="konten" class="px-4 py-4 max-w-xl mx-auto space-y-3"></main>
 
-<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#010204]">
-    <div class="px-5 py-4 border-b border-slate-800 flex justify-between items-center bg-[#0a0d17]">
-        <div>
-            <h2 id="m-sym" class="font-black text-white text-xl uppercase tracking-tighter">---</h2>
-            <div id="m-badge-box" class="mt-1"></div>
-        </div>
-        <button onclick="closeModal()" class="text-4xl text-slate-500 hover:text-white">&times;</button>
+<div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#0b0f19]">
+    <div class="px-5 py-4 border-b border-gray-800 flex justify-between items-center bg-[#111827]">
+        <h2 id="m-sym" class="font-black text-white text-xl uppercase">---</h2>
+        <button onclick="closeModal()" class="text-3xl text-gray-500">&times;</button>
     </div>
-    <div class="flex-1 overflow-y-auto p-5 space-y-5 max-w-xl mx-auto w-full">
-        <div id="tv-box" class="w-full h-[340px] rounded-xl border border-slate-800 bg-black overflow-hidden shadow-2xl shadow-emerald-900/5"></div>
-        
-        <div class="grid grid-cols-3 gap-2">
-            <div class="p-3 bg-[#0a0d17] border border-slate-800 rounded-xl text-center">
-                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Entry</p>
-                <p id="m-entry" class="text-[11px] font-black text-white">---</p>
-            </div>
-            <div class="p-3 bg-[#0a0d17] border border-emerald-900/40 rounded-xl text-center shadow-lg">
-                <p class="text-[8px] text-emerald-500 font-bold uppercase mb-1 italic">Max Potential</p>
-                <p id="m-tp" class="text-[11px] font-black text-emerald-400">---</p>
-            </div>
-            <div class="p-3 bg-[#0a0d17] border border-red-900/30 rounded-xl text-center">
-                <p class="text-[8px] text-red-500 font-bold uppercase mb-1">Safety Cut</p>
-                <p id="m-sl" class="text-[11px] font-black text-red-400">---</p>
-            </div>
-        </div>
-
-        <div id="m-audit" class="p-4 bg-[#0a0d17] rounded-xl border border-slate-800 space-y-2 text-[11px] font-bold uppercase tracking-tight"></div>
+    <div class="flex-1 overflow-y-auto p-5 space-y-6 max-w-xl mx-auto w-full">
+        <div id="tv-box" class="w-full h-[350px] rounded-lg border border-gray-800 bg-black overflow-hidden"></div>
+        <div id="m-audit" class="p-5 bg-[#111827] border border-gray-800 rounded-lg space-y-2 text-[11px] font-bold text-gray-400 uppercase"></div>
     </div>
 </div>
 
@@ -79,41 +53,47 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
-function maxProfitAnalysis(t) {
+function stableNeuralLogic(t) {
     const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
     const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
     
     const pir = ((last - lo) / (hi - lo)) * 100;
     const spread = ((ask - bid) / bid) * 100;
     const range = ((hi - lo) / lo) * 100;
-
-    let status = 'NETRAL', logs = [];
-
-    // FULL OFFENSIVE LOGIC (Sinyal Super Agresif)
-    const isVolActive = vol > 1.5e9;
     
-    if (pir > 96 || spread > 3.5) {
+    let score = 0, reason = "Neutral Market", logs = [];
+
+    // 1. POSITIONING (BB/PIR)
+    if (pir < 40) score += 30;
+    
+    // 2. VOLUME STABILITY (Anti-Labil)
+    if (vol > 2e9) score += 30;
+
+    // 3. SPREAD QUALITY
+    if (spread < 1.0) score += 40;
+
+    let status = 'NETRAL';
+    // STABLE FILTER: Sinyal hanya WARNING jika resiko benar-benar fatal
+    if (pir > 96 || (spread > 4.5 && vol < 5e8)) {
         status = 'WARNING';
-        logs.push("🛑 WARNING: PEAK SATURATION / HIGH RISK");
-    } else if (pir < 55 || (range > 6 && isVolActive)) {
+        reason = "High Spread / Overbought";
+    } else if (score >= 60 && pir < 60) {
         status = 'BUY';
-        if (pir < 25) logs.push("🔥 BUY: DEEP BOTTOM (REVERSAL READY)");
-        else if (pir < 55) logs.push("💰 BUY: MASSIVE ACCUMULATION PHASE");
-        else logs.push("🚀 BUY: BREAKOUT (HIGH MOMENTUM)");
+        reason = (pir < 30) ? "Strong Accumulation" : "Trend Continuation";
+    } else {
+        reason = "Waiting for Confirmation";
     }
 
-    // EXPONENTIAL PROFIT SCALER (Profit Maksimal Bervariasi)
-    // Menggunakan pengganda volatilitas untuk menarik TP lebih tinggi pada koin liar
-    let volatilityBonus = range > 10 ? 1.5 : range > 5 ? 1.2 : 1.0;
-    let potential = (range * 0.8 * volatilityBonus) + (spread * 2.5);
-    
-    // Potensi profit minimal 2% dan maksimal bisa 35%+
-    potential = Math.min(Math.max(potential, 2.0), 35);
+    // Dynamic Logic for TP/SL
+    let potential = (range * 1.2) + (score / 12);
+    potential = Math.min(Math.max(potential, 4.0), 45);
 
-    const tp = last * (1 + (potential / 100));
-    const sl = last * (1 - (potential * 0.45 / 100)); // SL lebih ketat untuk proteksi
-
-    return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, pir: pir.toFixed(1), vol, spread: spread.toFixed(2), logs, tp, sl, range, potential: potential.toFixed(1) };
+    return { 
+        s: t.pair.replace('_idr','').toUpperCase(), 
+        p: last, lb: status, score, reason, 
+        tp: last*(1+potential/100), sl: last*(1-potential*0.45/100), 
+        potential: potential.toFixed(1) 
+    };
 }
 
 async function fetchData() {
@@ -123,42 +103,34 @@ async function fetchData() {
         let list = [];
         for (const key in data.tickers) {
             if (key.endsWith('_idr')) {
-                const r = maxProfitAnalysis({ pair: key, ...data.tickers[key] });
+                const r = stableNeuralLogic({ pair: key, ...data.tickers[key] });
                 if (r) list.push(r);
             }
         }
         db = list;
         render();
-        document.getElementById('scan-info').innerHTML = `<span class="live-indicator mr-2"></span> Next Sync: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('scan-info').innerText = `Sync: ${new Date().toLocaleTimeString()}`;
     } catch (e) { console.error("Sync Error"); }
 }
 
 function render() {
     const el = document.getElementById('konten');
     let filtered = db.filter(x => currentFil === 'ALL' ? true : x.lb === currentFil)
-    .sort((a,b) => {
-        const order = { 'BUY': 1, 'NETRAL': 2, 'WARNING': 3 };
-        return order[a.lb] - order[b.lb];
-    });
+    .sort((a,b) => b.score - a.score);
 
     el.innerHTML = filtered.map(x => `
-        <div class="card p-5 border-l-4 ${x.lb === 'BUY' ? 'border-emerald-500 shadow-xl shadow-emerald-500/5' : 'border-slate-800'}" onclick="openModal('${x.s}')">
-            <div class="flex justify-between items-center">
+        <div class="card p-5" onclick="openModal('${x.s}')">
+            <div class="flex justify-between items-start">
                 <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[17px] font-black text-white tracking-tighter">${x.s}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-base font-black text-white italic">${x.s}</span>
                         <span class="badge b-${x.lb}">${x.lb}</span>
                     </div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase">VOL: ${Math.round(x.vol/1e6)}M · RNG: ${x.range.toFixed(1)}%</div>
+                    <span class="reason-tag">${x.reason}</span>
                 </div>
                 <div class="text-right">
-                    <p class="text-[15px] font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <div class="mt-1 flex flex-col items-end">
-                        <p class="text-[11px] font-black text-emerald-400 uppercase tracking-tighter">Profit: +${x.potential}%</p>
-                        <div class="w-12 h-1 bg-emerald-900/30 rounded-full mt-1 overflow-hidden">
-                            <div class="bg-emerald-500 h-full" style="width: ${Math.min(x.potential * 3, 100)}%"></div>
-                        </div>
-                    </div>
+                    <p class="text-sm font-black text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
+                    <p class="text-[11px] font-bold text-emerald-500 mt-1 uppercase">Target: +${x.potential}%</p>
                 </div>
             </div>
         </div>
@@ -170,18 +142,19 @@ function openModal(symbol) {
     if (!x) return;
     document.getElementById('modal').classList.remove('hidden');
     document.getElementById('m-sym').innerText = x.s;
-    document.getElementById('m-badge-box').innerHTML = `<span class="badge b-${x.lb}">${x.lb}</span>`;
-    document.getElementById('m-entry').innerText = 'Rp ' + x.p.toLocaleString('id-ID');
-    document.getElementById('m-tp').innerText = 'Rp ' + Math.round(x.tp).toLocaleString('id-ID');
-    document.getElementById('m-sl').innerText = 'Rp ' + Math.round(x.sl).toLocaleString('id-ID');
-    document.getElementById('m-audit').innerHTML = x.logs.map(l => `<div class="${l.includes('BUY') ? 'text-emerald-400' : 'text-slate-400'}">${l}</div>`).join('') + 
-        `<div class="text-slate-600 mt-3 text-[9px] border-t border-slate-800 pt-2 italic tracking-tight uppercase">Confirmed: BB, RSI, OBV, CMF, MFI (Scalping Multi-TF).</div>`;
+    document.getElementById('m-audit').innerHTML = `
+        <div class="flex justify-between border-b border-gray-800 pb-2"><span>Status</span><span class="text-emerald-400">${x.lb}</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2"><span>Potential</span><span class="text-emerald-400">+${x.potential}%</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2"><span>Entry</span><span>Rp ${x.p.toLocaleString('id-ID')}</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-emerald-400"><span>Target TP</span><span>Rp ${Math.round(x.tp).toLocaleString('id-ID')}</span></div>
+        <div class="flex justify-between pt-2 text-red-400"><span>Stop Loss</span><span>Rp ${Math.round(x.sl).toLocaleString('id-ID')}</span></div>
+    `;
     
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
         autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
         interval: '60', theme: 'dark', container_id: 'tv-box', style: '1', locale: 'id', hide_side_toolbar: true,
-        studies: ['BollingerBands@tv-basicstudies','RSI@tv-basicstudies','MoneyFlow@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies']
+        studies: ['BollingerBands@tv-basicstudies','RSI@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies','MoneyFlow@tv-basicstudies']
     });
 }
 
