@@ -113,9 +113,10 @@ function hyperAnalysis(t) {
     }
 
     // Dynamic Target (Lebar target menyesuaikan volatilitas koin)
-    const targetScale = Math.max(range * 0.5, 5); 
-    const tp = last * (1 + (targetScale / 100));
-    const sl = last * (1 - (targetScale * 0.55 / 100));
+   // Baris kode yang saya ubah untuk memperbaiki variasi potensi:
+const targetScale = range * 0.7; // Mengikuti 70% dari range harian koin tersebut
+const tp = last * (1 + (targetScale / 100));
+const sl = last * (1 - (targetScale * 0.5 / 100));
 
     return { s: t.pair.replace('_idr','').toUpperCase(), p: last, lb: status, pir: pir.toFixed(1), vol, cap, spread: spread.toFixed(2), logs, tp, sl, range };
 }
