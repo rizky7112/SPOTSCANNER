@@ -16,28 +16,27 @@
         .search-input { background: #111827; border: 1px solid #1f2937; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 13px; width: 100%; outline: none; }
         .search-input:focus { border-color: #059669; }
         .badge { padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
-        .b-BUY      { background: #064e3b; color: #34d399; }
-        .b-NETRAL   { background: #1f2937; color: #94a3b8; }
-        .b-WARNING  { background: #450a0a; color: #f87171; }
+        .b-BUY { background: #064e3b; color: #34d399; }
+        .b-NETRAL { background: #1f2937; color: #94a3b8; }
+        .b-WARNING { background: #450a0a; color: #f87171; }
         .reason-text { font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 4px; font-weight: 600; }
         select { background: #1f2937; color: #9ca3af; border: 1px solid #374151; padding: 8px; border-radius: 6px; font-size: 10px; font-weight: 700; outline: none; }
     </style>
 </head>
 <body class="pb-24">
-
 <header class="sticky top-0 z-50 bg-[#0b0f19]/95 border-b border-gray-800 px-4 pt-6 pb-5 backdrop-blur-md">
     <div class="max-w-xl mx-auto mb-5">
-        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">V6.8</span></h1>
-        
+        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">by R.F.R</span></h1>
+       
         <input type="text" id="search-bar" oninput="render()" placeholder="Cari koin (misal: BTC, ENA)..." class="search-input mb-4">
-        
+       
         <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
             <div class="flex gap-2">
                 <button onclick="setFil('ALL',this)" class="btn-f active">SEMUA</button>
                 <button onclick="setFil('BUY',this)" class="btn-f">BUY</button>
                 <button onclick="setFil('WARNING',this)" class="btn-f">WARNING</button>
             </div>
-            
+           
             <select id="sort-filter" onchange="render()">
                 <option value="SCORE">SORTIR: SCORE</option>
                 <option value="VOL">SORTIR: VOLUME</option>
@@ -46,9 +45,7 @@
         </div>
     </div>
 </header>
-
 <main id="konten" class="px-4 py-2 max-w-xl mx-auto space-y-3"></main>
-
 <div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#0b0f19]">
     <div class="px-5 py-4 border-b border-gray-800 flex justify-between items-center bg-[#111827]">
         <h2 id="m-sym" class="font-bold text-white text-lg">---</h2>
@@ -65,40 +62,97 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJ
 let db = [], currentFil = 'ALL';
 
 function technicalLogic(t) {
-    const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), vol = parseFloat(t.vol_idr);
-    const bid = parseFloat(t.buy), ask = parseFloat(t.sell);
-    
-    const pir = ((last - lo) / (hi - lo)) * 100, range = ((hi - lo) / lo) * 100;
+    const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), 
+          vol = parseFloat(t.vol_idr), bid = parseFloat(t.buy), ask = parseFloat(t.sell);
+   
+    const pir = ((last - lo) / (hi - lo)) * 100 || 50;
+    const range = ((hi - lo) / lo) * 100;
     const spread = ((ask - bid) / bid) * 100;
-    
-    let score = 0, reason = "Observing";
+    const volStrength = vol > 1.2e9 ? (vol / 1.2e9) : 0;
 
-    const isAccumulation = pir < 38;
-    const isStrongFlow = vol > 2e9 && spread < 0.8;
+    // ==================== RSI SIMULATION ====================
+    let rsi = 50 + (pir - 50) * 1.1;                    // Base dari PIR
+    rsi = rsi + (volStrength > 2 ? 8 : 0);             // Volume boost
+    rsi = Math.max(20, Math.min(80, rsi));             // Clamp
 
-    if (isAccumulation && isStrongFlow) {
-        score = 95;
-        reason = "Confirmed Divergence";
-    } else if (isAccumulation) {
+    // ==================== MULTI TIMEFRAME (Lebih Longgar) ====================
+    let tfShort = 48, tfMedium = 48, tfLong = 48;
+
+    // Short-term
+    if (pir < 38) tfShort = rsi < 42 ? 82 : 68;
+    else if (pir < 50) tfShort = 62;
+    else if (pir > 82) tfShort = 25;
+
+    // Medium-term
+    if (volStrength > 2.2 && pir < 45) tfMedium = 78;
+    else if (pir < 42) tfMedium = 65;
+    else if (pir > 80) tfMedium = 32;
+
+    // Long-term
+    if (pir < 40 && volStrength > 1.4) tfLong = 73;
+    else if (pir < 48) tfLong = 60;
+    else if (pir > 85) tfLong = 28;
+
+    const tfAlignment = (tfShort + tfMedium + tfLong) / 3;
+    const tfConsensus = (tfShort > 55 ? 1 : 0) + (tfMedium > 55 ? 1 : 0) + (tfLong > 55 ? 1 : 0);
+
+    // ==================== MAIN LOGIC ====================
+    let score = 45;
+    let reason = "Neutral Market";
+
+    const isNearSupport = pir < 42;
+    const isStrongVolume = vol > 1.8e9 && spread < 1.1;
+    const isHealthySpread = spread < 1.6;
+    const isOversold = rsi < 42;
+    const isOverbought = rsi > 72 || pir > 88;
+
+    if (isNearSupport && isOversold && tfConsensus >= 1) {
+        score = 88;
+        reason = "RSI Oversold + MTF Support";
+    }
+    else if (isNearSupport && (tfConsensus >= 2 || (tfAlignment > 58 && isStrongVolume))) {
+        score = 76;
+        reason = "MTF + RSI Bullish";
+    }
+    else if (isNearSupport && isOversold) {
         score = 65;
-        reason = "Potential Entry Zone";
-    } else if (pir > 94) {
-        score = 10;
-        reason = "Overextended Range";
+        reason = "RSI Oversold Zone";
+    }
+    else if (tfConsensus >= 2 && rsi < 55) {
+        score = 71;
+        reason = "MTF Alignment";
+    }
+    else if (isOverbought) {
+        score = 18;
+        reason = "Overbought / Overextended";
     }
 
+    // Final Score Adjustment
+    score = Math.round(score * (tfAlignment / 68) * (rsi < 45 ? 1.12 : 1));
+    score = Math.min(94, Math.max(10, score));
+
+    // Status
     let status = 'NETRAL';
-    if (pir > 96 || spread > 4.0) status = 'WARNING';
-    else if (score >= 65) status = 'BUY';
+    if (pir > 94 || spread > 4.2) {
+        status = 'WARNING';
+    } else if (score >= 65) {
+        status = 'BUY';
+    }
 
-    let potential = (range * 1.4) + (score / 10);
-    potential = Math.min(Math.max(potential, 4.0), 50);
+    // Potential
+    let potential = (range * 1.15) + (score / 10);
+    potential = Math.min(Math.max(potential, 5.5), 46);
 
-    return { 
-        s: t.pair.replace('_idr','').toUpperCase(), 
-        p: last, lb: status, score, reason, vol,
-        tp: last*(1+potential/100), sl: last*(1-potential*0.4/100), 
-        potential: parseFloat(potential.toFixed(1)) 
+    return {
+        s: t.pair.replace('_idr','').toUpperCase(),
+        p: last,
+        lb: status,
+        score: Math.round(score),
+        reason: reason,
+        vol: vol,
+        tp: last * (1 + potential/100),
+        sl: last * (1 - potential * 0.36/100),
+        potential: parseFloat(potential.toFixed(1))
     };
 }
 
@@ -122,14 +176,13 @@ function render() {
     const el = document.getElementById('konten');
     const query = document.getElementById('search-bar').value.toUpperCase();
     const sortVal = document.getElementById('sort-filter').value;
-    
+   
     let filtered = db.filter(x => {
         const matchTab = currentFil === 'ALL' ? true : x.lb === currentFil;
         const matchSearch = x.s.includes(query);
         return matchTab && matchSearch;
     });
 
-    // Logika Sortir Baru
     filtered.sort((a, b) => {
         if (sortVal === 'VOL') return b.vol - a.vol;
         if (sortVal === 'PROFIT') return b.potential - a.potential;
@@ -167,16 +220,25 @@ function openModal(symbol) {
         <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-red-500"><span>Safety SL</span><span>Rp ${Math.round(x.sl).toLocaleString('id-ID')}</span></div>
         <div class="flex justify-between pt-2 text-gray-500"><span>Volume (IDR)</span><span>${(x.vol/1e9).toFixed(2)} Miliar</span></div>
     `;
-    
+   
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
-        autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '60', theme: 'dark', container_id: 'tv-box', style: '1', locale: 'id', hide_side_toolbar: true,
+        autosize: true, 
+        symbol: 'BINANCE:' + x.s + 'USDT',
+        interval: '60', 
+        theme: 'dark', 
+        container_id: 'tv-box', 
+        style: '1', 
+        locale: 'id', 
+        hide_side_toolbar: true,
         studies: ['RSI@tv-basicstudies','BollingerBands@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies','MoneyFlow@tv-basicstudies']
     });
 }
 
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+function closeModal() { 
+    document.getElementById('modal').classList.add('hidden'); 
+}
+
 function setFil(f, b) {
     currentFil = f;
     document.querySelectorAll('.btn-f').forEach(x => x.classList.remove('active'));
