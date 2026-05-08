@@ -67,91 +67,136 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJ
 let db = [], currentFil = 'ALL';
 
 function technicalLogic(t) {
-    const last = parseFloat(t.last), hi = parseFloat(t.high), lo = parseFloat(t.low), 
-          vol = parseFloat(t.vol_idr), bid = parseFloat(t.buy), ask = parseFloat(t.sell);
-   
-    const pir = ((last - lo) / (hi - lo)) * 100 || 50;
-    const range = ((hi - lo) / lo) * 100;
-    const spread = ((ask - bid) / bid) * 100;
-    const volStrength = vol > 1e9 ? (vol / 1e9) : 0;
+    const last = parseFloat(t.last);
+    const hi   = parseFloat(t.high);
+    const lo   = parseFloat(t.low);
+    const vol  = parseFloat(t.vol_idr);
+    const bid  = parseFloat(t.buy);
+    const ask  = parseFloat(t.sell);
 
-    // RSI
-    let rsi = 50 + (pir - 50) * 1.08;
-    rsi = rsi + (volStrength > 2.5 ? 10 : volStrength > 1.2 ? 5 : 0);
-    rsi = Math.max(22, Math.min(80, rsi));
+    if (!last || !hi || !lo || hi === lo) return null;
 
-    // Multi Timeframe
-    let tfShort = 50, tfMedium = 50, tfLong = 50;
+    // ── CORE METRICS ─────────────────────────────────────────────
+    // Price-in-Range: 0 = at low, 100 = at high
+    const pir    = ((last - lo) / (hi - lo)) * 100;
+    // Daily volatility %
+    const range  = ((hi - lo) / lo) * 100;
+    // Bid-Ask spread %
+    const spread = bid > 0 ? ((ask - bid) / bid) * 100 : 99;
+    // Order-flow bias: >50 = buyers dominate, <50 = sellers dominate
+    const flow   = (ask > bid) ? ((last - bid) / (ask - bid)) * 100 : 50;
+    // Distance remaining to daily high (upside room)
+    const upRoom = ((hi - last) / last) * 100;
+    // Distance from daily low (how far above support)
+    const dnRoom = ((last - lo) / last) * 100;
 
-    if (pir < 45) tfShort = rsi < 48 ? 78 : 62;
-    else if (pir < 58) tfShort = 58;
+    // ── VOLUME TIER (0–5) ────────────────────────────────────────
+    const volTier = vol >= 10e9 ? 5
+                  : vol >=  5e9 ? 4
+                  : vol >=  2e9 ? 3
+                  : vol >=  1e9 ? 2
+                  : vol >= 4e8  ? 1 : 0;
 
-    if (volStrength > 2 || pir < 47) tfMedium = 74;
-    else if (pir < 52) tfMedium = 61;
+    // ── SIMULATED RSI (calibrated, 20–82) ────────────────────────
+    // Base from PIR; volume at low = bullish divergence pressure
+    let rsi = 28 + (pir * 0.42);
+    if (volTier >= 3 && pir < 38) rsi -= 6;   // accumulation at low
+    if (volTier >= 3 && pir > 72) rsi += 6;   // distribution at high
+    if (flow > 65  && pir < 45)   rsi -= 3;   // buyers at support
+    if (flow < 35  && pir > 60)   rsi += 3;   // sellers at resistance
+    rsi = Math.max(20, Math.min(82, rsi));
 
-    if (pir < 46) tfLong = 70;
-    else if (pir < 55) tfLong = 59;
+    // ── SIGNAL WEIGHTS ────────────────────────────────────────────
+    let score = 42;
+    const signals = [];
 
-    const tfAlignment = (tfShort + tfMedium + tfLong) / 3;
-    const tfConsensus = (tfShort > 55 ? 1 : 0) + (tfMedium > 55 ? 1 : 0) + (tfLong > 55 ? 1 : 0);
+    // 1. Price zone (most decisive)
+    if      (pir < 18) { score += 22; signals.push('Deep Oversold Zone');   }
+    else if (pir < 32) { score += 15; signals.push('Oversold Support');     }
+    else if (pir < 46) { score += 8;  signals.push('Near Support Level');   }
+    else if (pir > 93) { score -= 22; signals.push('At Daily High');        }
+    else if (pir > 80) { score -= 13; signals.push('Resistance Zone');      }
+    else if (pir > 68) { score -= 5;  signals.push('Upper Half Range');     }
 
-    // ==================== INDIKATOR BARU ====================
-    const emaTrend = (pir > 52 && last > lo * 1.02) ? 1 : (pir < 42 ? -1 : 0); // Virtual EMA Trend
-    const volumeMomentum = volStrength > 1.8 && spread < 1.4;
-    const rsiDivergence = (rsi < 48 && pir > 35); // Bullish RSI divergence sederhana
+    // 2. RSI confirmation
+    if      (rsi < 36) { score += 13; signals.push('RSI Strongly Oversold'); }
+    else if (rsi < 46) { score += 7;  signals.push('RSI Oversold');          }
+    else if (rsi > 74) { score -= 12; signals.push('RSI Overbought');        }
+    else if (rsi > 64) { score -= 5;  signals.push('RSI Elevated');          }
 
-    let score = 48;
-    let reason = "Neutral Market";
+    // 3. Volume confirmation (context-aware)
+    if      (volTier >= 4 && pir < 40) { score += 18; signals.push('Heavy Vol + Low Price');  }
+    else if (volTier >= 3 && pir < 48) { score += 12; signals.push('Volume at Support');      }
+    else if (volTier >= 3 && pir > 70) { score -= 8;  signals.push('Vol at Resistance');      }
+    else if (volTier >= 3)             { score += 5;  signals.push('High Volume');             }
+    else if (volTier <= 1)             { score -= 6;  signals.push('Thin Volume');             }
 
-    const isNearSupport = pir >= 22 && pir <= 48;
-    const hasRecovery = last > (lo * 1.012);
-    const isOversold = rsi < 50;
+    // 4. Order-flow bias
+    if      (flow > 70 && pir < 45) { score += 9;  signals.push('Buy Pressure'); }
+    else if (flow > 58 && pir < 55) { score += 4;  signals.push('Mild Buy Flow'); }
+    else if (flow < 30 && pir > 55) { score -= 8;  signals.push('Sell Pressure'); }
+    else if (flow < 42 && pir > 65) { score -= 4;  signals.push('Weak Flow');     }
 
-    if (isNearSupport && isOversold && tfConsensus >= 2 && volumeMomentum && emaTrend >= 0) {
-        score = 88;
-        reason = "Strong Multi Confirmation";
-    }
-    else if (isNearSupport && isOversold && tfConsensus >= 1 && rsiDivergence) {
-        score = 76;
-        reason = "RSI Divergence + MTF";
-    }
-    else if (isNearSupport && tfConsensus >= 2 && volumeMomentum) {
-        score = 69;
-        reason = "Volume + MTF Support";
-    }
-    else if (tfConsensus >= 2 && emaTrend === 1) {
-        score = 63;
-        reason = "Trend Alignment";
-    }
-    else if (isOversold && rsiDivergence) {
-        score = 59;
-        reason = "Potential Rebound";
-    }
+    // 5. Spread quality gate
+    if      (spread > 4.5) { score -= 18; signals.push('Very Wide Spread'); }
+    else if (spread > 2.8) { score -= 9;  signals.push('Wide Spread');      }
+    else if (spread < 0.6) { score += 4;  signals.push('Tight Spread');     }
 
-    // Final Score Adjustment
-    score = Math.round(score * (tfAlignment / 70) * (volumeMomentum ? 1.1 : 0.95));
-    score = Math.min(94, Math.max(25, score));
+    // 6. Upside room bonus — only meaningful if score is rising
+    if (upRoom > 6 && pir < 50) { score += 4; }
 
+    // 7. Range quality — very tight range = boring / no catalyst
+    if      (range < 1.5) { score -= 5;  }
+    else if (range > 12)  { score += 3;  }   // big-range days have momentum
+
+    // 8. Convergence bonus: multiple oversold signals aligning
+    const oversoldCount = (pir < 40 ? 1 : 0) + (rsi < 48 ? 1 : 0) + (flow > 55 ? 1 : 0) + (volTier >= 2 ? 1 : 0);
+    if (oversoldCount >= 4) { score += 10; signals.unshift('Multi-Signal Confirm'); }
+    else if (oversoldCount === 3) { score += 5; }
+
+    // ── NORMALIZE ────────────────────────────────────────────────
+    score = Math.min(96, Math.max(18, Math.round(score)));
+
+    // ── STATUS ───────────────────────────────────────────────────
     let status = 'NETRAL';
-    if (pir > 94 || spread > 4.8) {
+    const isOverbought = pir > 90 || (pir > 75 && rsi > 70);
+    const isBadSpread  = spread > 4.0;
+    if (isOverbought || isBadSpread) {
         status = 'WARNING';
-    } else if (score >= 62) {
+    } else if (score >= 65 && rsi < 68) {
         status = 'BUY';
     }
 
-    let potential = (range * 1.13) + (score / 10);
-    potential = Math.min(Math.max(potential, 6.0), 46);
+    // ── REASON (pick top signal) ──────────────────────────────────
+    const reason = signals[0] || 'Sideways Market';
+
+    // ── POTENTIAL TP/SL (realistic) ───────────────────────────────
+    // TP = weighted blend of upside room + volatility bonus, capped per risk
+    let potential;
+    if (status === 'BUY') {
+        // Target realistic portion of distance to daily high + vol bonus
+        potential = (upRoom * 0.65) + (range * 0.28) + (score / 22);
+        potential = Math.min(Math.max(potential, 5.0), 42.0);
+    } else {
+        potential = (range * 0.45) + 3.0;
+        potential = Math.min(Math.max(potential, 3.0), 22.0);
+    }
+    potential = parseFloat(potential.toFixed(1));
+
+    // SL = tighter for strong BUY signals, slightly looser for neutral
+    const slRatio = status === 'BUY' ? 0.32 : 0.45;
+    const slPct   = potential * slRatio;
 
     return {
         s: t.pair.replace('_idr','').toUpperCase(),
         p: last,
         lb: status,
-        score: Math.round(score),
-        reason: reason,
-        vol: vol,
-        tp: last * (1 + potential/100),
-        sl: last * (1 - potential * 0.34/100),
-        potential: parseFloat(potential.toFixed(1))
+        score,
+        reason,
+        vol,
+        tp: last * (1 + potential / 100),
+        sl: last * (1 - slPct / 100),
+        potential
     };
 }
 
