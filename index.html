@@ -7,13 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Suppress Tailwind CDN warning
-        tailwind.config = {
-            content: [],
-            theme: { extend: {} }
-        };
+        tailwind.config = { content: [], theme: { extend: {} } };
     </script>
-
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -35,7 +30,7 @@
 <body class="pb-24">
 <header class="sticky top-0 z-50 bg-[#0b0f19]/95 border-b border-gray-800 px-4 pt-6 pb-5 backdrop-blur-md">
     <div class="max-w-xl mx-auto mb-5">
-        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">V6.8</span></h1>
+        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">by 🆁🆉🅺🆈</span></h1>
        
         <input type="text" id="search-bar" oninput="render()" placeholder="Cari koin (misal: BTC, ENA)..." class="search-input mb-4">
        
@@ -78,65 +73,71 @@ function technicalLogic(t) {
     const pir = ((last - lo) / (hi - lo)) * 100 || 50;
     const range = ((hi - lo) / lo) * 100;
     const spread = ((ask - bid) / bid) * 100;
-    const volStrength = vol > 1.2e9 ? (vol / 1.2e9) : 0;
+    const volStrength = vol > 1e9 ? (vol / 1e9) : 0;
 
-    let rsi = 50 + (pir - 50) * 1.05;
-    rsi = rsi + (volStrength > 2.5 ? 10 : volStrength > 1.5 ? 5 : 0);
-    rsi = Math.max(22, Math.min(78, rsi));
+    // RSI
+    let rsi = 50 + (pir - 50) * 1.1;
+    rsi = rsi + (volStrength > 2 ? 12 : volStrength > 1 ? 6 : 0);
+    rsi = Math.max(22, Math.min(80, rsi));
 
-    let tfShort = 48, tfMedium = 48, tfLong = 48;
+    // Multi Timeframe - Sangat Longgar
+    let tfShort = 50, tfMedium = 50, tfLong = 50;
 
-    if (pir < 40) tfShort = rsi < 45 ? 78 : 65;
-    else if (pir < 52) tfShort = 60;
+    if (pir < 48) tfShort = rsi < 48 ? 76 : 60;
+    else if (pir < 60) tfShort = 55;
 
-    if (volStrength > 2 && pir < 48) tfMedium = 76;
-    else if (pir < 45) tfMedium = 64;
+    if (volStrength > 1.8 || pir < 47) tfMedium = 72;
+    else if (pir < 50) tfMedium = 60;
 
-    if (pir < 42 && volStrength > 1.3) tfLong = 72;
-    else if (pir < 50) tfLong = 58;
+    if (pir < 45) tfLong = 68;
+    else if (pir < 55) tfLong = 57;
 
     const tfAlignment = (tfShort + tfMedium + tfLong) / 3;
-    const tfConsensus = (tfShort > 58 ? 1 : 0) + (tfMedium > 58 ? 1 : 0) + (tfLong > 58 ? 1 : 0);
+    const tfConsensus = (tfShort > 52 ? 1 : 0) + (tfMedium > 52 ? 1 : 0) + (tfLong > 52 ? 1 : 0);
 
-    let score = 42;
+    let score = 48;
     let reason = "Neutral Market";
 
-    const isNearSupport = pir >= 22 && pir <= 41;
-    const hasMomentum = last > (lo * 1.018);
-    const isOversold = rsi < 46 && rsi > 28;
-    const isSafeEntry = hasMomentum && spread < 1.6 && tfAlignment > 55;
-    const isOverbought = rsi > 70 || pir > 87;
+    const isNearSupport = pir >= 20 && pir <= 48;        // Sangat longgar
+    const hasRecovery = last > (lo * 1.008);             // Recovery sangat kecil
+    const isOversold = rsi < 52;                         // RSI lebih mudah dianggap oversold
+    const isStrongVolume = vol > 1.4e9 && spread < 1.8;
 
-    if (isNearSupport && isOversold && isSafeEntry && tfConsensus >= 1) {
-        score = 86;
-        reason = "Safe RSI + MTF Entry";
+    const isOverbought = rsi > 75 || pir > 90;
+
+    if (isNearSupport && isOversold && tfConsensus >= 1) {
+        score = 82;
+        reason = "MTF + RSI Support";
     }
-    else if (isNearSupport && isOversold && tfConsensus >= 2) {
-        score = 74;
-        reason = "MTF Supported Rebound";
+    else if (isNearSupport && tfConsensus >= 2) {
+        score = 73;
+        reason = "Strong MTF Alignment";
     }
-    else if (isNearSupport && isOversold && hasMomentum) {
+    else if (isNearSupport && isOversold) {
         score = 64;
-        reason = "Early RSI Recovery";
+        reason = "Oversold Zone";
     }
-    else if (tfConsensus >= 2 && rsi < 52) {
-        score = 68;
-        reason = "MTF Bullish Alignment";
+    else if (tfConsensus >= 2) {
+        score = 61;
+        reason = "MTF Bullish";
     }
     else if (isOverbought) {
-        score = 16;
-        reason = "Overbought - High Risk";
+        score = 22;
+        reason = "Overbought";
     }
 
-    score = Math.round(score * (tfAlignment / 72));
-    score = Math.min(93, Math.max(12, score));
+    score = Math.round(score * (tfAlignment / 68));
+    score = Math.min(94, Math.max(25, score));
 
     let status = 'NETRAL';
-    if (pir > 93 || spread > 4.5) status = 'WARNING';
-    else if (score >= 68) status = 'BUY';
+    if (pir > 95 || spread > 5) {
+        status = 'WARNING';
+    } else if (score >= 58) {          // Threshold sangat rendah
+        status = 'BUY';
+    }
 
-    let potential = (range * 1.1) + (score / 11);
-    potential = Math.min(Math.max(potential, 6.0), 44);
+    let potential = (range * 1.15) + (score / 9.5);
+    potential = Math.min(Math.max(potential, 5.5), 48);
 
     return {
         s: t.pair.replace('_idr','').toUpperCase(),
@@ -146,7 +147,7 @@ function technicalLogic(t) {
         reason: reason,
         vol: vol,
         tp: last * (1 + potential/100),
-        sl: last * (1 - potential * 0.32/100),
+        sl: last * (1 - potential * 0.33/100),
         potential: parseFloat(potential.toFixed(1))
     };
 }
@@ -218,21 +219,14 @@ function openModal(symbol) {
    
     document.getElementById('tv-box').innerHTML = '';
     new TradingView.widget({
-        autosize: true, 
-        symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '60', 
-        theme: 'dark', 
-        container_id: 'tv-box', 
-        style: '1', 
-        locale: 'id', 
+        autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
+        interval: '60', theme: 'dark', container_id: 'tv-box', style: '1', locale: 'id', 
         hide_side_toolbar: true,
         studies: ['RSI@tv-basicstudies','BollingerBands@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies','MoneyFlow@tv-basicstudies']
     });
 }
 
-function closeModal() { 
-    document.getElementById('modal').classList.add('hidden'); 
-}
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 
 function setFil(f, b) {
     currentFil = f;
