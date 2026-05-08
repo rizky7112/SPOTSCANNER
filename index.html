@@ -76,68 +76,71 @@ function technicalLogic(t) {
     const volStrength = vol > 1e9 ? (vol / 1e9) : 0;
 
     // RSI
-    let rsi = 50 + (pir - 50) * 1.1;
-    rsi = rsi + (volStrength > 2 ? 12 : volStrength > 1 ? 6 : 0);
+    let rsi = 50 + (pir - 50) * 1.08;
+    rsi = rsi + (volStrength > 2.5 ? 10 : volStrength > 1.2 ? 5 : 0);
     rsi = Math.max(22, Math.min(80, rsi));
 
-    // Multi Timeframe - Sangat Longgar
+    // Multi Timeframe
     let tfShort = 50, tfMedium = 50, tfLong = 50;
 
-    if (pir < 48) tfShort = rsi < 48 ? 76 : 60;
-    else if (pir < 60) tfShort = 55;
+    if (pir < 45) tfShort = rsi < 48 ? 78 : 62;
+    else if (pir < 58) tfShort = 58;
 
-    if (volStrength > 1.8 || pir < 47) tfMedium = 72;
-    else if (pir < 50) tfMedium = 60;
+    if (volStrength > 2 || pir < 47) tfMedium = 74;
+    else if (pir < 52) tfMedium = 61;
 
-    if (pir < 45) tfLong = 68;
-    else if (pir < 55) tfLong = 57;
+    if (pir < 46) tfLong = 70;
+    else if (pir < 55) tfLong = 59;
 
     const tfAlignment = (tfShort + tfMedium + tfLong) / 3;
-    const tfConsensus = (tfShort > 52 ? 1 : 0) + (tfMedium > 52 ? 1 : 0) + (tfLong > 52 ? 1 : 0);
+    const tfConsensus = (tfShort > 55 ? 1 : 0) + (tfMedium > 55 ? 1 : 0) + (tfLong > 55 ? 1 : 0);
+
+    // ==================== INDIKATOR BARU ====================
+    const emaTrend = (pir > 52 && last > lo * 1.02) ? 1 : (pir < 42 ? -1 : 0); // Virtual EMA Trend
+    const volumeMomentum = volStrength > 1.8 && spread < 1.4;
+    const rsiDivergence = (rsi < 48 && pir > 35); // Bullish RSI divergence sederhana
 
     let score = 48;
     let reason = "Neutral Market";
 
-    const isNearSupport = pir >= 20 && pir <= 48;        // Sangat longgar
-    const hasRecovery = last > (lo * 1.008);             // Recovery sangat kecil
-    const isOversold = rsi < 52;                         // RSI lebih mudah dianggap oversold
-    const isStrongVolume = vol > 1.4e9 && spread < 1.8;
+    const isNearSupport = pir >= 22 && pir <= 48;
+    const hasRecovery = last > (lo * 1.012);
+    const isOversold = rsi < 50;
 
-    const isOverbought = rsi > 75 || pir > 90;
-
-    if (isNearSupport && isOversold && tfConsensus >= 1) {
-        score = 82;
-        reason = "MTF + RSI Support";
+    if (isNearSupport && isOversold && tfConsensus >= 2 && volumeMomentum && emaTrend >= 0) {
+        score = 88;
+        reason = "Strong Multi Confirmation";
     }
-    else if (isNearSupport && tfConsensus >= 2) {
-        score = 73;
-        reason = "Strong MTF Alignment";
+    else if (isNearSupport && isOversold && tfConsensus >= 1 && rsiDivergence) {
+        score = 76;
+        reason = "RSI Divergence + MTF";
     }
-    else if (isNearSupport && isOversold) {
-        score = 64;
-        reason = "Oversold Zone";
+    else if (isNearSupport && tfConsensus >= 2 && volumeMomentum) {
+        score = 69;
+        reason = "Volume + MTF Support";
     }
-    else if (tfConsensus >= 2) {
-        score = 61;
-        reason = "MTF Bullish";
+    else if (tfConsensus >= 2 && emaTrend === 1) {
+        score = 63;
+        reason = "Trend Alignment";
     }
-    else if (isOverbought) {
-        score = 22;
-        reason = "Overbought";
+    else if (isOversold && rsiDivergence) {
+        score = 59;
+        reason = "Potential Rebound";
     }
 
-    score = Math.round(score * (tfAlignment / 68));
+    // Final Score Adjustment
+    score = Math.round(score * (tfAlignment / 70) * (volumeMomentum ? 1.1 : 0.95));
     score = Math.min(94, Math.max(25, score));
 
     let status = 'NETRAL';
-    if (pir > 95 || spread > 5) {
+    if (pir > 94 || spread > 4.8) {
         status = 'WARNING';
-    } else if (score >= 58) {          // Threshold sangat rendah
+    } else if (score >= 62) {
         status = 'BUY';
     }
 
-    let potential = (range * 1.15) + (score / 9.5);
-    potential = Math.min(Math.max(potential, 5.5), 48);
+    let potential = (range * 1.13) + (score / 10);
+    potential = Math.min(Math.max(potential, 6.0), 46);
 
     return {
         s: t.pair.replace('_idr','').toUpperCase(),
@@ -147,7 +150,7 @@ function technicalLogic(t) {
         reason: reason,
         vol: vol,
         tp: last * (1 + potential/100),
-        sl: last * (1 - potential * 0.33/100),
+        sl: last * (1 - potential * 0.34/100),
         potential: parseFloat(potential.toFixed(1))
     };
 }
