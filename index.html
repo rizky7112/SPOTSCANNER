@@ -5,30 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CORE V6.8</title>
     
-    <!-- Tailwind CSS CDN - Optimized for Production-like usage -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Konfigurasi Tailwind (harus sebelum penggunaan class)
+        // Suppress Tailwind CDN warning
         tailwind.config = {
-            content: ["./**/*.{html,js}"],
-            theme: {
-                extend: {}
-            },
-            plugins: [],
-        }
+            content: [],
+            theme: { extend: {} }
+        };
     </script>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #0b0f19; 
-            color: #f1f5f9; 
-            margin: 0; 
-        }
-        
+        body { font-family: 'Inter', sans-serif; background: #0b0f19; color: #f1f5f9; margin: 0; }
         .card { background: #111827; border: 1px solid #1f2937; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .card:active { transform: scale(0.98); }
         .btn-f { background: #1f2937; color: #9ca3af; padding: 8px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid #374151; flex-shrink: 0; }
@@ -46,7 +35,7 @@
 <body class="pb-24">
 <header class="sticky top-0 z-50 bg-[#0b0f19]/95 border-b border-gray-800 px-4 pt-6 pb-5 backdrop-blur-md">
     <div class="max-w-xl mx-auto mb-5">
-        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">by R.F.R</span></h1>
+        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">V6.8</span></h1>
        
         <input type="text" id="search-bar" oninput="render()" placeholder="Cari koin (misal: BTC, ENA)..." class="search-input mb-4">
        
@@ -79,7 +68,6 @@
 </div>
 
 <script>
-// === LOGIC & FUNCTION tetap sama seperti sebelumnya ===
 const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
 let db = [], currentFil = 'ALL';
 
@@ -163,8 +151,6 @@ function technicalLogic(t) {
     };
 }
 
-// ... (bagian fetchData, render, openModal, dll tetap sama seperti versi sebelumnya)
-
 async function fetchData() {
     try {
         const res = await fetch(API_URL);
@@ -181,9 +167,73 @@ async function fetchData() {
     } catch (e) { console.error("Sync Error"); }
 }
 
-function render() { /* ... sama seperti sebelumnya ... */ }
-function openModal(symbol) { /* ... sama ... */ }
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+function render() {
+    const el = document.getElementById('konten');
+    const query = document.getElementById('search-bar').value.toUpperCase();
+    const sortVal = document.getElementById('sort-filter').value;
+   
+    let filtered = db.filter(x => {
+        const matchTab = currentFil === 'ALL' ? true : x.lb === currentFil;
+        const matchSearch = x.s.includes(query);
+        return matchTab && matchSearch;
+    });
+
+    filtered.sort((a, b) => {
+        if (sortVal === 'VOL') return b.vol - a.vol;
+        if (sortVal === 'PROFIT') return b.potential - a.potential;
+        return b.score - a.score;
+    });
+
+    el.innerHTML = filtered.map(x => `
+        <div class="card p-5" onclick="openModal('${x.s}')">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-white">${x.s}</span>
+                        <span class="badge b-${x.lb}">${x.lb}</span>
+                    </div>
+                    <span class="reason-text">${x.reason}</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
+                    <p class="text-[10px] font-bold text-emerald-500 mt-0.5 uppercase">Est. +${x.potential}%</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openModal(symbol) {
+    const x = db.find(i => i.s === symbol);
+    if (!x) return;
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('m-sym').innerText = x.s;
+    document.getElementById('m-audit').innerHTML = `
+        <div class="flex justify-between border-b border-gray-800 pb-2"><span>Status Analysis</span><span>${x.reason}</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-white"><span>Price Today</span><span>Rp ${x.p.toLocaleString('id-ID')}</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-emerald-500"><span>Target TP (+${x.potential}%)</span><span>Rp ${Math.round(x.tp).toLocaleString('id-ID')}</span></div>
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-red-500"><span>Safety SL</span><span>Rp ${Math.round(x.sl).toLocaleString('id-ID')}</span></div>
+        <div class="flex justify-between pt-2 text-gray-500"><span>Volume (IDR)</span><span>${(x.vol/1e9).toFixed(2)} Miliar</span></div>
+    `;
+   
+    document.getElementById('tv-box').innerHTML = '';
+    new TradingView.widget({
+        autosize: true, 
+        symbol: 'BINANCE:' + x.s + 'USDT',
+        interval: '60', 
+        theme: 'dark', 
+        container_id: 'tv-box', 
+        style: '1', 
+        locale: 'id', 
+        hide_side_toolbar: true,
+        studies: ['RSI@tv-basicstudies','BollingerBands@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies','MoneyFlow@tv-basicstudies']
+    });
+}
+
+function closeModal() { 
+    document.getElementById('modal').classList.add('hidden'); 
+}
+
 function setFil(f, b) {
     currentFil = f;
     document.querySelectorAll('.btn-f').forEach(x => x.classList.remove('active'));
