@@ -4,69 +4,190 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CORE V6.8</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
-        tailwind.config = { content: [], theme: { extend: {} } };
+        tailwind.config = {
+            content: [],
+            theme: { extend: {} }
+        };
     </script>
+
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #0b0f19; color: #f1f5f9; margin: 0; }
-        .card { background: #111827; border: 1px solid #1f2937; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .btn-f { background: #1f2937; color: #9ca3af; padding: 8px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid #374151; flex-shrink: 0; }
-        .btn-f.active { background: #059669; color: #fff; border-color: #059669; }
-        .search-input { background: #111827; border: 1px solid #1f2937; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 13px; width: 100%; outline: none; }
-        .search-input:focus { border-color: #059669; }
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
-        .b-BUY { background: #064e3b; color: #34d399; }
-        .b-NETRAL { background: #1f2937; color: #94a3b8; }
-        .b-WARNING { background: #450a0a; color: #f87171; }
-        .reason-text { font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-        select { background: #1f2937; color: #9ca3af; border: 1px solid #374151; padding: 8px; border-radius: 6px; font-size: 10px; font-weight: 700; outline: none; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0f19;
+            color: #f1f5f9;
+            margin: 0;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .btn-f {
+            background: #1f2937;
+            color: #9ca3af;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border: 1px solid #374151;
+            flex-shrink: 0;
+        }
+
+        .btn-f.active {
+            background: #059669;
+            color: #fff;
+            border-color: #059669;
+        }
+
+        .search-input {
+            background: #111827;
+            border: 1px solid #1f2937;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #059669;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .b-BUY {
+            background: #064e3b;
+            color: #34d399;
+        }
+
+        .b-NETRAL {
+            background: #1f2937;
+            color: #94a3b8;
+        }
+
+        .b-WARNING {
+            background: #450a0a;
+            color: #f87171;
+        }
+
+        .reason-text {
+            font-size: 9px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        select {
+            background: #1f2937;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            outline: none;
+        }
     </style>
 </head>
+
 <body class="pb-24">
+
 <header class="sticky top-0 z-50 bg-[#0b0f19]/95 border-b border-gray-800 px-4 pt-6 pb-5 backdrop-blur-md">
+
     <div class="max-w-xl mx-auto mb-5">
-        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Market Monitor <span class="text-white">by 𝓡𝓩𝓚𝓨</span></h1>
-       
-        <input type="text" id="search-bar" oninput="render()" placeholder="Cari koin (misal: BTC, ENA)..." class="search-input mb-4">
-       
+
+        <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">
+            Market Monitor <span class="text-white">by 𝓡𝓩𝓚𝓨</span>
+        </h1>
+
+        <input
+            type="text"
+            id="search-bar"
+            oninput="render()"
+            placeholder="Cari koin (misal: BTC, ENA)..."
+            class="search-input mb-4"
+        >
+
         <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+
             <div class="flex gap-2">
                 <button onclick="setFil('ALL',this)" class="btn-f active">SEMUA</button>
                 <button onclick="setFil('BUY',this)" class="btn-f">BUY</button>
                 <button onclick="setFil('WARNING',this)" class="btn-f">WARNING</button>
             </div>
-           
+
             <select id="sort-filter" onchange="render()">
                 <option value="SCORE">SORTIR: SCORE</option>
                 <option value="VOL">SORTIR: VOLUME</option>
                 <option value="PROFIT">SORTIR: POTENSI</option>
             </select>
+
         </div>
+
     </div>
+
 </header>
+
 <main id="konten" class="px-4 py-2 max-w-xl mx-auto space-y-3"></main>
 
 <div id="modal" class="fixed inset-0 z-[60] hidden flex flex-col bg-[#0b0f19]">
+
     <div class="px-5 py-4 border-b border-gray-800 flex justify-between items-center bg-[#111827]">
+
         <h2 id="m-sym" class="font-bold text-white text-lg">---</h2>
-        <button onclick="closeModal()" class="text-3xl text-gray-500">&times;</button>
+
+        <button onclick="closeModal()" class="text-3xl text-gray-500">
+            &times;
+        </button>
+
     </div>
+
     <div class="flex-1 overflow-y-auto p-5 space-y-6 max-w-xl mx-auto w-full">
+
         <div id="tv-box" class="w-full h-[350px] rounded-lg border border-gray-800 bg-black overflow-hidden"></div>
-        <div id="m-audit" class="p-5 bg-[#111827] border border-gray-800 rounded-lg space-y-3 text-[11px] font-semibold text-gray-400 uppercase text-xs"></div>
+
+        <div id="m-audit"
+             class="p-5 bg-[#111827] border border-gray-800 rounded-lg space-y-3 text-[11px] font-semibold text-gray-400 uppercase text-xs">
+        </div>
+
     </div>
+
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
-let db = [], currentFil = 'ALL';
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzPTDN_tK_r7HjECRSKbpmJCv5ErZsRslw7iqrJ1g4-HrAxVciCMyBatbvgEi8WdZMdNw/exec";
+
+let db = [];
+let currentFil = 'ALL';
 
 function technicalLogic(t) {
+
     const last = parseFloat(t.last);
     const hi   = parseFloat(t.high);
     const lo   = parseFloat(t.low);
@@ -76,215 +197,586 @@ function technicalLogic(t) {
 
     if (!last || !hi || !lo || hi === lo) return null;
 
-    // ── CORE METRICS ─────────────────────────────────────────────
-    // Price-in-Range: 0 = at low, 100 = at high
+    // CORE METRICS
+
     const pir    = ((last - lo) / (hi - lo)) * 100;
-    // Daily volatility %
     const range  = ((hi - lo) / lo) * 100;
-    // Bid-Ask spread %
     const spread = bid > 0 ? ((ask - bid) / bid) * 100 : 99;
-    // Order-flow bias: >50 = buyers dominate, <50 = sellers dominate
-    const flow   = (ask > bid) ? ((last - bid) / (ask - bid)) * 100 : 50;
-    // Distance remaining to daily high (upside room)
+
+    // FLOW ENGINE
+
+    let flow = 50;
+
+    if (bid > 0 && ask > 0) {
+
+        const mid = (bid + ask) / 2;
+        const pressure = ((last - mid) / mid) * 100;
+
+        flow = 50 + (pressure * 120);
+
+        flow = Math.max(0, Math.min(100, flow));
+    }
+
     const upRoom = ((hi - last) / last) * 100;
-    // Distance from daily low (how far above support)
-    const dnRoom = ((last - lo) / last) * 100;
 
-    // ── VOLUME TIER (0–5) ────────────────────────────────────────
-    const volTier = vol >= 10e9 ? 5
-                  : vol >=  5e9 ? 4
-                  : vol >=  2e9 ? 3
-                  : vol >=  1e9 ? 2
-                  : vol >= 4e8  ? 1 : 0;
+    // VOLUME TIER
 
-    // ── SIMULATED RSI (calibrated, 20–82) ────────────────────────
-    // Base from PIR; volume at low = bullish divergence pressure
-    let rsi = 28 + (pir * 0.42);
-    if (volTier >= 3 && pir < 38) rsi -= 6;   // accumulation at low
-    if (volTier >= 3 && pir > 72) rsi += 6;   // distribution at high
-    if (flow > 65  && pir < 45)   rsi -= 3;   // buyers at support
-    if (flow < 35  && pir > 60)   rsi += 3;   // sellers at resistance
+    const volTier =
+          vol >= 10e9 ? 5
+        : vol >=  5e9 ? 4
+        : vol >=  2e9 ? 3
+        : vol >=  1e9 ? 2
+        : vol >= 4e8  ? 1
+        : 0;
+
+    // IMPROVED RSI
+
+    let rsi = 30 + (pir * 0.40);
+
+    if (range > 14 && pir < 35) rsi += 8;
+
+    if (range > 20 && pir < 25) rsi += 12;
+
+    if (volTier >= 3 && pir < 38) rsi -= 5;
+
+    if (volTier >= 3 && pir > 72) rsi += 6;
+
+    if (flow > 65 && pir < 45) rsi -= 3;
+
+    if (flow < 35 && pir > 60) rsi += 3;
+
     rsi = Math.max(20, Math.min(82, rsi));
 
-    // ── SIGNAL WEIGHTS ────────────────────────────────────────────
-    let score = 42;
+    // SIGNAL ENGINE
+
+    let score = 48;
+
     const signals = [];
 
-    // 1. Price zone (most decisive)
-    if      (pir < 18) { score += 22; signals.push('Deep Oversold Zone');   }
-    else if (pir < 32) { score += 15; signals.push('Oversold Support');     }
-    else if (pir < 46) { score += 8;  signals.push('Near Support Level');   }
-    else if (pir > 93) { score -= 22; signals.push('At Daily High');        }
-    else if (pir > 80) { score -= 13; signals.push('Resistance Zone');      }
-    else if (pir > 68) { score -= 5;  signals.push('Upper Half Range');     }
+    // PRICE ZONE
 
-    // 2. RSI confirmation
-    if      (rsi < 36) { score += 13; signals.push('RSI Strongly Oversold'); }
-    else if (rsi < 46) { score += 7;  signals.push('RSI Oversold');          }
-    else if (rsi > 74) { score -= 12; signals.push('RSI Overbought');        }
-    else if (rsi > 64) { score -= 5;  signals.push('RSI Elevated');          }
+    if (pir < 18) {
 
-    // 3. Volume confirmation (context-aware)
-    if      (volTier >= 4 && pir < 40) { score += 18; signals.push('Heavy Vol + Low Price');  }
-    else if (volTier >= 3 && pir < 48) { score += 12; signals.push('Volume at Support');      }
-    else if (volTier >= 3 && pir > 70) { score -= 8;  signals.push('Vol at Resistance');      }
-    else if (volTier >= 3)             { score += 5;  signals.push('High Volume');             }
-    else if (volTier <= 1)             { score -= 6;  signals.push('Thin Volume');             }
+        score += 22;
+        signals.push('Deep Oversold Zone');
 
-    // 4. Order-flow bias
-    if      (flow > 70 && pir < 45) { score += 9;  signals.push('Buy Pressure'); }
-    else if (flow > 58 && pir < 55) { score += 4;  signals.push('Mild Buy Flow'); }
-    else if (flow < 30 && pir > 55) { score -= 8;  signals.push('Sell Pressure'); }
-    else if (flow < 42 && pir > 65) { score -= 4;  signals.push('Weak Flow');     }
+    }
+    else if (pir < 32) {
 
-    // 5. Spread quality gate
-    if      (spread > 4.5) { score -= 18; signals.push('Very Wide Spread'); }
-    else if (spread > 2.8) { score -= 9;  signals.push('Wide Spread');      }
-    else if (spread < 0.6) { score += 4;  signals.push('Tight Spread');     }
+        score += 15;
+        signals.push('Oversold Support');
 
-    // 6. Upside room bonus — only meaningful if score is rising
-    if (upRoom > 6 && pir < 50) { score += 4; }
+    }
+    else if (pir < 46) {
 
-    // 7. Range quality — very tight range = boring / no catalyst
-    if      (range < 1.5) { score -= 5;  }
-    else if (range > 12)  { score += 3;  }   // big-range days have momentum
+        score += 8;
+        signals.push('Near Support Level');
 
-    // 8. Convergence bonus: multiple oversold signals aligning
-    const oversoldCount = (pir < 40 ? 1 : 0) + (rsi < 48 ? 1 : 0) + (flow > 55 ? 1 : 0) + (volTier >= 2 ? 1 : 0);
-    if (oversoldCount >= 4) { score += 10; signals.unshift('Multi-Signal Confirm'); }
-    else if (oversoldCount === 3) { score += 5; }
+    }
+    else if (pir > 93) {
 
-    // ── NORMALIZE ────────────────────────────────────────────────
-    score = Math.min(96, Math.max(18, Math.round(score)));
+        score -= 22;
+        signals.push('At Daily High');
 
-    // ── STATUS ───────────────────────────────────────────────────
+    }
+    else if (pir > 80) {
+
+        score -= 13;
+        signals.push('Resistance Zone');
+
+    }
+    else if (pir > 68) {
+
+        score -= 5;
+        signals.push('Upper Half Range');
+    }
+
+    // RSI
+
+    if (rsi < 36) {
+
+        score += 13;
+        signals.push('RSI Strongly Oversold');
+
+    }
+    else if (rsi < 46) {
+
+        score += 7;
+        signals.push('RSI Oversold');
+
+    }
+    else if (rsi > 74) {
+
+        score -= 12;
+        signals.push('RSI Overbought');
+
+    }
+    else if (rsi > 64) {
+
+        score -= 5;
+        signals.push('RSI Elevated');
+    }
+
+    // VOLUME
+
+    if (volTier >= 4 && pir < 40) {
+
+        score += 18;
+        signals.push('Heavy Vol + Low Price');
+
+    }
+    else if (volTier >= 3 && pir < 48) {
+
+        score += 12;
+        signals.push('Volume at Support');
+
+    }
+    else if (volTier >= 3 && pir > 70) {
+
+        score -= 8;
+        signals.push('Vol at Resistance');
+
+    }
+    else if (volTier >= 3) {
+
+        score += 5;
+        signals.push('High Volume');
+
+    }
+    else if (volTier <= 1) {
+
+        score -= 8;
+        signals.push('Weak Liquidity');
+    }
+
+    // FLOW
+
+    if (flow > 70 && pir < 45) {
+
+        score += 9;
+        signals.push('Buy Pressure');
+
+    }
+    else if (flow > 58 && pir < 55) {
+
+        score += 4;
+        signals.push('Mild Buy Flow');
+
+    }
+    else if (flow < 30 && pir > 55) {
+
+        score -= 8;
+        signals.push('Sell Pressure');
+
+    }
+    else if (flow < 42 && pir > 65) {
+
+        score -= 4;
+        signals.push('Weak Flow');
+    }
+
+    // SPREAD
+
+    if (spread > 4.5) {
+
+        score -= 18;
+        signals.push('Very Wide Spread');
+
+    }
+    else if (spread > 2.8) {
+
+        score -= 9;
+        signals.push('Wide Spread');
+
+    }
+    else if (spread < 0.6) {
+
+        score += 2;
+        signals.push('Tight Spread');
+    }
+
+    // UPSIDE ROOM
+
+    if (upRoom > 6 && pir < 50) {
+
+        score += 4;
+    }
+
+    // RECOVERY BOOST
+
+    if (
+        pir < 42 &&
+        range > 4 &&
+        flow > 52
+    ) {
+
+        score += 6;
+        signals.push('Recovery Setup');
+    }
+
+    // RANGE QUALITY
+
+    if (range < 1.5) {
+
+        score -= 5;
+
+    }
+    else if (range > 12) {
+
+        score += 3;
+    }
+
+    // MOMENTUM DECAY
+
+    const decay =
+        (pir < 35 && range < 2.2);
+
+    if (decay) {
+
+        score -= 4;
+        signals.push('Momentum Decay');
+    }
+
+    // MULTI SIGNAL
+
+    const oversoldCount =
+        (pir < 40 ? 1 : 0) +
+        (rsi < 48 ? 1 : 0) +
+        (flow > 55 ? 1 : 0) +
+        (volTier >= 2 ? 1 : 0);
+
+    if (oversoldCount >= 4) {
+
+        score += 10;
+        signals.unshift('Multi-Signal Confirm');
+
+    }
+    else if (oversoldCount === 3) {
+
+        score += 5;
+    }
+
+    // EXHAUSTION FILTER
+
+    if (
+        pir < 18 &&
+        range > 18 &&
+        flow < 45
+    ) {
+
+        score -= 9;
+        signals.unshift('Capitulation Risk');
+    }
+
+    // NORMALIZE
+
+    score =
+        Math.min(
+            96,
+            Math.max(18, Math.round(score))
+        );
+
+    // STATUS ENGINE
+
     let status = 'NETRAL';
-    const isOverbought = pir > 90 || (pir > 75 && rsi > 70);
-    const isBadSpread  = spread > 4.0;
+
+    const isOverbought =
+        pir > 90 ||
+        (pir > 75 && rsi > 70);
+
+    const isBadSpread =
+        spread > 4.0;
+
     if (isOverbought || isBadSpread) {
+
         status = 'WARNING';
-    } else if (score >= 65 && rsi < 68) {
+
+    }
+    else if (
+        score >= 61 &&
+        rsi < 72 &&
+        spread < 3.6 &&
+        volTier >= 1
+    ) {
+
         status = 'BUY';
     }
 
-    // ── REASON (pick top signal) ──────────────────────────────────
-    const reason = signals[0] || 'Sideways Market';
+    // REASON
 
-    // ── POTENTIAL TP/SL (realistic) ───────────────────────────────
-    // TP = weighted blend of upside room + volatility bonus, capped per risk
+    const reason =
+        signals[0] || 'Sideways Market';
+
+    // TP / SL ENGINE
+
     let potential;
-    if (status === 'BUY') {
-        // Target realistic portion of distance to daily high + vol bonus
-        potential = (upRoom * 0.65) + (range * 0.28) + (score / 22);
-        potential = Math.min(Math.max(potential, 5.0), 42.0);
-    } else {
-        potential = (range * 0.45) + 3.0;
-        potential = Math.min(Math.max(potential, 3.0), 22.0);
-    }
-    potential = parseFloat(potential.toFixed(1));
 
-    // SL = tighter for strong BUY signals, slightly looser for neutral
-    const slRatio = status === 'BUY' ? 0.32 : 0.45;
-    const slPct   = potential * slRatio;
+    if (status === 'BUY') {
+
+        potential =
+            (upRoom * 0.52) +
+            (Math.min(range, 12) * 0.18) +
+            (score / 26);
+
+        potential = Math.min(
+            Math.max(potential, 5.0),
+            42.0
+        );
+
+    } else {
+
+        potential =
+            (range * 0.45) + 3.0;
+
+        potential = Math.min(
+            Math.max(potential, 3.0),
+            22.0
+        );
+    }
+
+    potential =
+        parseFloat(potential.toFixed(1));
+
+    const slRatio =
+        status === 'BUY'
+            ? 0.30
+            : 0.45;
+
+    const slPct =
+        potential * slRatio;
 
     return {
+
         s: t.pair.replace('_idr','').toUpperCase(),
+
         p: last,
+
         lb: status,
+
         score,
+
         reason,
+
         vol,
+
         tp: last * (1 + potential / 100),
+
         sl: last * (1 - slPct / 100),
+
         potential
     };
 }
 
 async function fetchData() {
+
     try {
+
         const res = await fetch(API_URL);
+
         const data = await res.json();
+
         let list = [];
+
         for (const key in data.tickers) {
+
             if (key.endsWith('_idr')) {
-                const r = technicalLogic({ pair: key, ...data.tickers[key] });
+
+                const r = technicalLogic({
+                    pair: key,
+                    ...data.tickers[key]
+                });
+
                 if (r) list.push(r);
             }
         }
+
         db = list;
+
         render();
-    } catch (e) { console.error("Sync Error"); }
+
+    } catch (e) {
+
+        console.error("Sync Error");
+    }
 }
 
 function render() {
-    const el = document.getElementById('konten');
-    const query = document.getElementById('search-bar').value.toUpperCase();
-    const sortVal = document.getElementById('sort-filter').value;
-   
+
+    const el =
+        document.getElementById('konten');
+
+    const query =
+        document.getElementById('search-bar')
+        .value
+        .toUpperCase();
+
+    const sortVal =
+        document.getElementById('sort-filter')
+        .value;
+
     let filtered = db.filter(x => {
-        const matchTab = currentFil === 'ALL' ? true : x.lb === currentFil;
-        const matchSearch = x.s.includes(query);
+
+        const matchTab =
+            currentFil === 'ALL'
+            ? true
+            : x.lb === currentFil;
+
+        const matchSearch =
+            x.s.includes(query);
+
         return matchTab && matchSearch;
     });
 
     filtered.sort((a, b) => {
-        if (sortVal === 'VOL') return b.vol - a.vol;
-        if (sortVal === 'PROFIT') return b.potential - a.potential;
+
+        if (sortVal === 'VOL')
+            return b.vol - a.vol;
+
+        if (sortVal === 'PROFIT')
+            return b.potential - a.potential;
+
         return b.score - a.score;
     });
 
     el.innerHTML = filtered.map(x => `
+
         <div class="card p-5" onclick="openModal('${x.s}')">
+
             <div class="flex justify-between items-center">
+
                 <div>
+
                     <div class="flex items-center gap-2">
-                        <span class="text-sm font-bold text-white">${x.s}</span>
-                        <span class="badge b-${x.lb}">${x.lb}</span>
+
+                        <span class="text-sm font-bold text-white">
+                            ${x.s}
+                        </span>
+
+                        <span class="badge b-${x.lb}">
+                            ${x.lb}
+                        </span>
+
                     </div>
-                    <span class="reason-text">${x.reason}</span>
+
+                    <span class="reason-text">
+                        ${x.reason}
+                    </span>
+
                 </div>
+
                 <div class="text-right">
-                    <p class="text-sm font-bold text-white">Rp ${x.p.toLocaleString('id-ID')}</p>
-                    <p class="text-[10px] font-bold text-emerald-500 mt-0.5 uppercase">Est. +${x.potential}%</p>
+
+                    <p class="text-sm font-bold text-white">
+                        Rp ${x.p.toLocaleString('id-ID')}
+                    </p>
+
+                    <p class="text-[10px] font-bold text-emerald-500 mt-0.5 uppercase">
+                        Est. +${x.potential}%
+                    </p>
+
                 </div>
+
             </div>
+
         </div>
+
     `).join('');
 }
 
 function openModal(symbol) {
-    const x = db.find(i => i.s === symbol);
+
+    const x =
+        db.find(i => i.s === symbol);
+
     if (!x) return;
-    document.getElementById('modal').classList.remove('hidden');
-    document.getElementById('m-sym').innerText = x.s;
+
+    document.getElementById('modal')
+        .classList.remove('hidden');
+
+    document.getElementById('m-sym')
+        .innerText = x.s;
+
     document.getElementById('m-audit').innerHTML = `
-        <div class="flex justify-between border-b border-gray-800 pb-2"><span>Status Analysis</span><span>${x.reason}</span></div>
-        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-white"><span>Price Today</span><span>Rp ${x.p.toLocaleString('id-ID')}</span></div>
-        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-emerald-500"><span>Target TP (+${x.potential}%)</span><span>Rp ${Math.round(x.tp).toLocaleString('id-ID')}</span></div>
-        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-red-500"><span>Safety SL</span><span>Rp ${Math.round(x.sl).toLocaleString('id-ID')}</span></div>
-        <div class="flex justify-between pt-2 text-gray-500"><span>Volume (IDR)</span><span>${(x.vol/1e9).toFixed(2)} Miliar</span></div>
+
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>Status Analysis</span>
+            <span>${x.reason}</span>
+        </div>
+
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-white">
+            <span>Price Today</span>
+            <span>Rp ${x.p.toLocaleString('id-ID')}</span>
+        </div>
+
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-emerald-500">
+            <span>Target TP (+${x.potential}%)</span>
+            <span>Rp ${Math.round(x.tp).toLocaleString('id-ID')}</span>
+        </div>
+
+        <div class="flex justify-between border-b border-gray-800 pb-2 pt-2 text-red-500">
+            <span>Safety SL</span>
+            <span>Rp ${Math.round(x.sl).toLocaleString('id-ID')}</span>
+        </div>
+
+        <div class="flex justify-between pt-2 text-gray-500">
+            <span>Volume (IDR)</span>
+            <span>${(x.vol / 1e9).toFixed(2)} Miliar</span>
+        </div>
     `;
-   
+
     document.getElementById('tv-box').innerHTML = '';
+
     new TradingView.widget({
-        autosize: true, symbol: 'BINANCE:' + x.s + 'USDT',
-        interval: '60', theme: 'dark', container_id: 'tv-box', style: '1', locale: 'id', 
+
+        autosize: true,
+
+        symbol: 'BINANCE:' + x.s + 'USDT',
+
+        interval: '60',
+
+        theme: 'dark',
+
+        container_id: 'tv-box',
+
+        style: '1',
+
+        locale: 'id',
+
         hide_side_toolbar: true,
-        studies: ['RSI@tv-basicstudies','BollingerBands@tv-basicstudies','OnBalanceVolume@tv-basicstudies','ChaikinMoneyFlow@tv-basicstudies','MoneyFlow@tv-basicstudies']
+
+        studies: [
+            'RSI@tv-basicstudies',
+            'BollingerBands@tv-basicstudies',
+            'OnBalanceVolume@tv-basicstudies',
+            'ChaikinMoneyFlow@tv-basicstudies',
+            'MoneyFlow@tv-basicstudies'
+        ]
     });
 }
 
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+function closeModal() {
+
+    document.getElementById('modal')
+        .classList.add('hidden');
+}
 
 function setFil(f, b) {
+
     currentFil = f;
-    document.querySelectorAll('.btn-f').forEach(x => x.classList.remove('active'));
+
+    document.querySelectorAll('.btn-f')
+        .forEach(x => x.classList.remove('active'));
+
     b.classList.add('active');
+
     render();
 }
 
 fetchData();
+
 setInterval(fetchData, 30000);
+
 </script>
+
 </body>
 </html>
